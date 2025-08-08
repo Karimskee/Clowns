@@ -1,0 +1,9 @@
+Karimskee:
+----------
+1- add alignment to border()
+2- add invalid command output in take_input if input starts with -
+3- validate input
+
+Critical questions:
+-------------------
+1- OOP where 🤔

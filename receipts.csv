@@ -1,0 +1,5 @@
+patient_email,doctor_name,turn,cost,clinic,date
+dumb@email.com,Basmala Mohamed,1,$50,A,2025-08-09
+dumb@email.com,Mostafa Sameh,1,$50,G,2025-08-09
+dumb@email.com,Eman Kamal,1,$50,M,2025-08-09
+dumb@email.com,Basmala Mohamed,2,$50,A,2025-08-09

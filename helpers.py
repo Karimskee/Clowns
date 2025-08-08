@@ -10,60 +10,14 @@ class InfoCommand(Exception):
     pass
 
 # If user typed a redirective command (e.g. -login)
+
+
 class RedirectCommand(Exception):
     pass
 
 
 commands = ["-help", "-login", "-register", "-home",
             "-schedule", "-receipts", "-reports"]
-
-
-class Doctors:
-    Cardiology = [
-        {"name": "Basmala Mohamed", "age": 33, "experience": 10, "clinic": "A"},
-        {"name": "Ahmed Adel", "age": 30, "experience":  7, "clinic": "B"},
-        {"name": "Alaa Abdelnaser", "age": 27, "experience": 5, "clinic": "C"},
-    ]
-
-    Neurology = [
-        {"name": "Rahma Atia", "age": 25, "experience": 2, "clinic": "D"},
-        {"name": "Mohamed Sharkawy", "age": 26, "experience": 3, "clinic": "E"},
-        {"name": "Adel Saied", "age": 44, "experience": 20, "clinic": "F"},
-    ]
-
-    Orthopedics = [
-        {"name": "Mostafa Sameh", "age": 28, "experience": 4, "clinic": "G"},
-        {"name": "Mohammed Yassin", "age": 32, "experience": 7, "clinic": "H"},
-        {"name": "Anas Ahmed", "age": 41, "experience": 12, "clinic": "I"},
-    ]
-
-    Pediatrics = [
-        {"name": "Samaa Ahmed", "age": 22, "experience": 1, "clinic": "J"},
-        {"name": "Maha Ebrahim", "age": 36, "experience": 13, "clinic": "K"},
-        {"name": "Karim Ghazy", "age": 39, "experience": 15, "clinic": "L"},
-    ]
-
-    Dermatology = [
-        {"name": "Eman Kamal", "age": 34, "experience": 11, "clinic": "M"},
-        {"name": "Huda Amr", "age": 37, "experience": 113, "clinic": "N"},
-        {"name": "Omar Mahmoud", "age": 44, "experience": 22, "clinic": "O"},
-    ]
-
-    def __init__(self, list):
-        ...
-
-
-def set_doctor(n):
-    if n == 1:
-        print()
-    if n == 2:
-        print()
-    if n == 3:
-        print()
-    if n == 4:
-        print()
-    if n == 5:
-        print()
 
 
 def clear_terminal():
