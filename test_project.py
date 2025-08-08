@@ -1,4 +1,4 @@
-def test_function_1():
+def register_page():
     ...
 
 

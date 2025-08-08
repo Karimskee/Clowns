@@ -1,4 +1,21 @@
+from email_validator import validate_email, EmailNotValidError
 from math import ceil, floor
+import os
+import sys
+from csv import DictReader, DictWriter
+
+
+# If user typed an informative command (e.g. -help)
+class InfoCommand(Exception):
+    pass
+
+# If user typed a redirective command (e.g. -login)
+class RedirectCommand(Exception):
+    pass
+
+
+commands = ["-help", "-login", "-register", "-home",
+            "-schedule", "-receipts", "-reports"]
 
 
 class Doctors:
@@ -49,6 +66,10 @@ def set_doctor(n):
         print()
 
 
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
 def space(n: int):
     """Prints n blank lines"""
     print("\n" * n)
@@ -85,5 +106,47 @@ def border(s: str, size: int = 0):
     print("+" + "-" * (size + 2) + "+")  # Border bottom
 
 
-def ghaseel_mawa3een():
-    ...
+def check_email(email: str):
+    try:
+        emailinfo = validate_email(email, check_deliverability=True)
+        email = emailinfo.normalized
+        return email
+    except EmailNotValidError:
+        return None
+
+
+def run_command(command: str):
+    """Executes program commands"""
+    from project import register_page, login_page, home_page, schedule_page, receipts_page, reports_page
+
+    # Information commands
+    if command == "-help":
+        print("Commands:")
+        for command in commands:
+            print(command, end=" ")
+            print()
+        raise InfoCommand
+    # Page redirection commands
+    elif command == "-login":
+        login_page()
+    elif command == "-register":
+        register_page()
+    elif command == "-home":
+        home_page()
+    elif command == "-schedule":
+        schedule_page()
+    elif command == "-receipts":
+        receipts_page()
+    elif command == "-reports":
+        reports_page()
+    # Invalid command
+    else:
+        return False
+
+    raise RedirectCommand
+
+
+def take_input(s: str):
+    inpt = input(s).strip()
+    run_command(inpt)
+    return inpt

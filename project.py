@@ -5,63 +5,100 @@ from helpers import *
 
 
 def main():
-    login_page()
+    clear_terminal()
+    register_page()
 
 
 def register_page():
-    # User login information
-    name, email, password, confirm = ""
+    for _ in range(5):
+        # [name, email, password, confirm]
+        info = []
 
-    # Ask for user information
-    border("Register your account")
-    print("If already have an account, type '-login' instead!")
+        # Ask for user information
+        page = "Register your account\n"
+        page += "If you already have an account or you are a doctor, type -login"
+        border(page, 100)
 
-    # Input data while checking for the login command
-    name = input("Name: ").strip()
-    if name.lower() == "-login":
-        login_page()
+        # Get user input
+        try:
+            info.append(take_input("Name: "))
+            info.append(take_input("Email: "))
+            info.append(take_input("Password: "))
+            info.append(take_input("Repeat pasword: "))
+        except InfoCommand:
+            register_page()
+            return
+        except RedirectCommand:
+            return
 
-    email = input("Email: ").strip()
-    if email.lower() == "-login":
-        login_page()
+        # Extract user information
+        name, email, password, confirm = info
 
-    password = input("Password: ").strip()
-    if password.lower() == "-login":
-        login_page()
+        # Validate user information
+        if not name:  # name is optional
+            name = "User"
 
-    confirm = input("Confirm assword: ").strip()
-    if confirm.lower() == "-login":
-        login_page()
+        if not email or not password or not confirm:
+            print("Missing required input")
+            continue
 
-    if not name or not email or not password:
-        print("Missing required input")
-        register_page()
+        if password != confirm:
+            print("Passwords doesn't match")
+            continue
 
-    if name.isnumeric() or email.isnumeric():
-        print("Invalid name and/or email")
-        register_page()
-    
-    
+        # Returns None if invalid, normalized email if valid
+        email = check_email(email)
+        if not email:
+            print("Invalid email address")
+            continue
+
+        # Input validation went well
+        break
+    else:
+        # Too many registration attempts
+        print("Too many attempts, exiting program...")
+        return
+
+    # If email is already registered
+    with open("patients.csv", "r") as patients_db:
+        reader = DictReader(patients_db, fieldnames=[
+                            "name", "email", "password"])
+        for row in reader:
+            if row["email"] == email:
+                print("Email already exists, consider logging in instead")
+                login_page()
+                return
+
+    # Input data into the patients database
+    with open("patients.csv", "a", newline="") as patients_db:
+        writer = DictWriter(patients_db, fieldnames=[
+                            "name", "email", "password"])
+        writer.writerow(
+            {"name": name, "email": email, "password": password})
+
+    # Registration successful
+    print("Account has been registered successfully!")
+    home_page()
 
 
 def login_page():
-    ...
+    print("This is the login page")
 
 
 def home_page():
-    ...
+    print("This is the home page")
 
 
 def schedule_page():
-    ...
+    print("This is the schedule page")
 
 
 def receipts_page():
-    ...
+    print("This is the receipts page")
 
 
 def reports_page():
-    ...
+    print("This is the reports page")
 
 
 def receipt_page():
