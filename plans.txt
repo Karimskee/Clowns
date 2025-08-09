@@ -1,0 +1,26 @@
+Karimskee:
+----------
+1- add alignment to border() (left, center, right)
+2- add invalid command output
+3- validate inputs
+4- organize files
+
+
+Critical questions:
+-------------------
+1- OOP where 🤔
+
+
+Issues:
+-------
+1- -home after -register and -schedule dispalys "Karim Ghazy" instead of current session username
+
+
+Snippets to add:
+----------------
+1- File read
+2- File write
+
+
+Basmala:
+--------

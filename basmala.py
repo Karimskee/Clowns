@@ -22,6 +22,7 @@ from helpers import *
 def main():
     # email = "basmala@gmail.com"
     finished_reports()
+
     #     """Schedule an appointment with a doctor page"""
     #     # Page UI
     #     page = "Schedule an appointment\n"
@@ -178,38 +179,68 @@ def main():
     #         print("No receipts")
 
 
+# Store all doctor's unfinished_reports in a variable
+unfinished = []
+
+
 def finished_reports(doctor_email="basmala@gmail.com"):
-
-    _unfinished()  # Store whole unfinished_reports file in a variable
-    all_unfinished_reports = []
-
     # Search for all rows for a doctor email
-    with open("unfinished_reports", 'r') as file:
+    with open("unfinished_reports.csv", 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
             if row['doctor_email'] == doctor_email:
-                all_unfinished_reports.append(row)
+                unfinished.append(row)
 
     # Show these rows to the doctor (Karimskee's)
-    def show_all_unfinished():
-        if len(all_unfinished_reports):
-            for i in range(len(all_unfinished_reports)):
-                all_unfinished_reports[i].pop("doctor_email")
-                items = list(all_unfinished_reports[i].items())
+    if len(unfinished):
+        choose_report_to_finish()
+        add_finished()
+    else:
+        print("All reports are finished")
 
-                print(f"{i + 1}- ", end="")
 
-                for item in items[0: -1]:
-                    print(f"{item[0]}: {item[1]}, ", end="")
-                print(f"{items[-1][0]}: {items[-1][1]}")
-        else:
-            print("All reports are finished")
+# Get the doctor to choose which report to finish (Karimskee's)
+chosen = []
 
-    # Get the doctor to choose which report to finish (Karimskee's)
+
+def choose_report_to_finish():
+    for i in range(len(unfinished)):
+        unfinished[i].pop("doctor_email")
+        items = list(unfinished[i].items())
+    print(f"{i + 1}- ", end="")
+    for item in items[0: -1]:
+        print(f"{item[0]}: {item[1]}, ", end="")
+    print(f"{items[-1][0]}: {items[-1][1]}")
+    chosen_one = int(input("Chosen report ?"))
+    unfinished[chosen_one - 1]["doctor_notes"] = input("Notes: ")
+    chosen.append(unfinished[chosen_one - 1])
+
     # Get the doctor to type the report note (Karimskee's)
-    # Store all finished reports in a variable
+
+    # Store the whole unfinished_reports file in a variable
+    all_reports = []
+
     # Rewrite the unfinished_reports such that it only includes untouched reports
+    with open("unfinished_reports.csv", 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if not row in chosen:
+                all_reports.append(row)
+
+    if len(all_reports):
+        with open("unfinished_reports.csv", "w", newline="") as File:
+            writer = csv.DictWriter(File, fieldnames=[
+                                    "patient_email", "doctor_email", "date", "turn", "doctor_notes"])
+            writer.writerows(all_reports)
+
     # Append finished reports to the finished_reports file
+
+
+def add_finished():
+    with open("finished_reports.csv", "a", newline="") as File:
+        writer = csv.DictWriter(File, fieldnames=[
+                                "patient_email", "doctor_email", "date", "turn", "doctor_notes"])
+        writer.writerows(chosen)
 
 
 if __name__ == "__main__":

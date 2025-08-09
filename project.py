@@ -1,25 +1,28 @@
 """
 Medical appointments system
 """
-from email_validator import validate_email, EmailNotValidError
-from math import ceil, floor
-import os
 from csv import DictReader, DictWriter
 from datetime import date, timedelta
+from email_validator import EmailNotValidError, validate_email
+from math import ceil, floor
+import os
+import sys
+
 
 # If user typed an informative command (e.g. -help)
-
-
 class InfoCommand(Exception):
     pass
 
+
 # If user typed a redirective command (e.g. -login)
-
-
 class RedirectCommand(Exception):
     pass
 
 
+session = {}
+session["email"] = "karimskee@gmail.com"
+session["name"] = "Karim Ghazy"
+session["type"] = "patient"
 commands = ["-help", "-login", "-register", "-home",
             "-schedule", "-receipts", "-reports"]
 
@@ -29,14 +32,24 @@ def main():
     register_page()
 
 
+def login_required():
+    """Checks if the user is logged in to access certain pages"""
+    if not session.get("email"):
+        print("You must be logged in to access this page.")
+        login_page()
+
+
 def register_page():
-    for _ in range(5):
+    """Patient registration page"""
+    # Loops till the user successfully registers their account
+    while True:
         # [name, email, password, confirm]
         info = []
 
         # Ask for user information
         page = "Register your account\n"
-        page += "If you already have an account or you are a doctor, type -login"
+        page += "If you already have an account or you are a doctor, type -login\n"
+        page += "For the list of the program commands, type -help"
         border(page, 100)
 
         # Get user input
@@ -58,30 +71,26 @@ def register_page():
         name = check_name(name)
 
         if not check_missing(email, password, confirm):
-            print("Missing required input")
+            print("Missing required input.")
             continue
 
         # Returns None if invalid, normalized email if valid
         email = check_email(email)
         if not email:
-            print("Invalid email address")
+            print("Invalid email address.")
             continue
 
         if not check_password(password, confirm):
-            print("Passwords doesn't match")
+            print("Passwords doesn't match.")
             continue
 
         # Input validation went well
         break
-    else:
-        # Too many registration attempts
-        print("Too many attempts, exiting program...")
-        return
 
     # If email is already registered
-    with open("patients.csv", "r") as patients_db:
-        reader = DictReader(patients_db, fieldnames=[
-                            "name", "email", "password"])
+    with open("users_login.csv", "r") as users_db:
+        reader = DictReader(users_db)
+
         for row in reader:
             if row["email"] == email:
                 print("Email already exists, consider logging in instead")
@@ -89,27 +98,108 @@ def register_page():
                 return
 
     # Input data into the patients database
-    with open("patients.csv", "a", newline="") as patients_db:
-        writer = DictWriter(patients_db, fieldnames=[
-                            "name", "email", "password"])
+    with open("users_login.csv", "a", newline="") as users_db:
+        writer = DictWriter(users_db, fieldnames=[
+                            "name", "email", "password", "type"])
         writer.writerow(
-            {"name": name, "email": email, "password": password})
+            {"name": name, "email": email, "password": password, "type": "patient"})
 
     # Registration successful
     print("Account has been registered successfully!")
+    session["email"] = email
+    session["name"] = name
+    session["type"] = "patient"
     home_page()
 
 
 def login_page():
-    print("This is the login page")
+    """Patient/doctor login page"""
+    # Page UI
+    page = "Login to your account\n"
+    page += "If you don't have an account, type -register\n"
+    page += "For the list of the program commands, type -help"
+    border(page, 100)
+
+    # Get user login information
+    try:
+        email = take_input("Email: ")
+        password = take_input("Password: ")
+    except InfoCommand:
+        login_page()
+        return
+    except RedirectCommand:
+        return
+
+    # # Check if the email is registered
+    # with open("filename.csv", "r") as File:
+    #     reader = DictReader(File, fieldnames=[
+    #                         "name", "field2", "password"])
+    #     for row in reader:
+    #         if row["field2"] == field2:
+
+    # Input validation went well
+    with open("users_login.csv", "r") as users_db:
+        reader = DictReader(users_db, fieldnames=[
+                            "name", "email", "password"])
+        for row in reader:
+            if row["email"] == email and row["password"] == password:
+                session["email"] = email
+                session["name"] = row["name"]
+                home_page()
+                return
+
+    # Login failed
+    print("Invalid email or password.")
+    login_page()
+    return
 
 
 def home_page():
-    print("This is the home page")
+    """Hospital home page"""
+    login_required()
+
+    page = "Clowns hospital\n"
+    page += f"how can we serve you today, {session["name"]}?\n"
+    page += "1- Schedule an appointment\n"
+    page += "2- View your receipts\n"
+    page += "3- View your reports\n"
+    page += "4- Logout\n"
+    page += "5- Close the program"
+
+    border(page, 100)
+
+    try:
+        choice = int(take_input("Enter your choice: "))
+    except InfoCommand:
+        home_page()
+        return
+    except RedirectCommand:
+        return
+
+    if choice == 1:
+        schedule_page()
+        return
+    elif choice == 2:
+        receipts_page()
+        return
+    elif choice == 3:
+        reports_page()
+        return
+    elif choice == 4:
+        session.clear()
+        register_page()
+    elif choice == 5:
+        clear_terminal()
+        sys.exit()
+    else:
+        print("Invalid choice.")
+        home_page()
 
 
 def schedule_page():
     """Schedule an appointment with a doctor page"""
+    login_required()
+
     # Page UI
     page = "Schedule an appointment\n"
     page += "-----------------------\n"
@@ -119,7 +209,7 @@ def schedule_page():
     specs = set()
 
     # Get specializations from the database
-    with open("doctors.csv", "r") as doctors_db:
+    with open("doctors_info.csv", "r") as doctors_db:
         reader = DictReader(doctors_db)
         for row in reader:
             specs.add(row["specialization"])
@@ -145,7 +235,7 @@ def schedule_page():
     doctors = []
 
     # Get the list of doctors in the desired specialization
-    with open("doctors.csv", "r") as doctors_db:
+    with open("doctors_info.csv", "r") as doctors_db:
         reader = DictReader(doctors_db)
         for row in reader:
             if row["specialization"] == specs[spec_num - 1]:
@@ -196,13 +286,15 @@ def schedule_page():
                             fieldnames=["patient_email", "doctor_name",
                                         "turn", "cost", "clinic", "date"])
         writer.writerow({
-            "patient_email": "dumb@email.com",
+            "patient_email": session["email"],
             "doctor_name": doctor["name"],
             "turn": turn,
             "cost": "$50",
             "clinic": doctor["clinic"],
             "date": str(appointment_date),
         })
+
+    # Add data to reports
 
     # Successful appointment scheduling
     print("Your appointment has been scheduled successfully!")
@@ -223,19 +315,99 @@ def schedule_page():
 
 
 def receipts_page():
-    print("This is the receipts page")
+    """Display all patient receipts"""
+    login_required()
+
+    # Page UI
+    page = "Your receipts"
+    border(page, 100)
+
+    # Variable to store receipts
+    patient_receipts = []
+
+    # Get receipts from the database
+    with open("receipts.csv", 'r') as file:
+        reader = DictReader(file)
+
+        for row in reader:
+            if row['patient_email'] == session['email']:
+                patient_receipts.append(row)
+
+    # Reverse cronogical order
+    patient_receipts.reverse()
+
+    # Print receipts
+    if len(patient_receipts):
+        for i in range(len(patient_receipts)):
+            patient_receipts[i].pop("patient_email")  # Ignore patient_email
+            items = list(patient_receipts[i].items())
+
+            print(f"{i + 1}- ", end="")
+
+            for item in items[0: -1]:
+                print(f"{item[0]}: {item[1]}, ", end="")
+            print(f"{items[-1][0]}: {items[-1][1]}")
+    else:
+        print("No receipts")
+
+    # Wait for user command
+    while True:
+        help()
+
+        try:
+            take_input("Enter one of these commands: ")
+        except (InfoCommand, RedirectCommand):
+            return
+        else:
+            print("Invalid command.")
 
 
 def reports_page():
-    print("This is the reports page")
+    """Display all patient reports"""
+    login_required()
 
+    # Page UI
+    page = "Your reports"
+    border(page, 100)
 
-def receipt_page():
-    ...
+    # Variable to store reports
+    patient_reports = []
 
+    # Get reports from the database
+    with open("finished_reports.csv", 'r') as file:
+        reader = DictReader(file)
 
-def report_page():
-    ...
+        for row in reader:
+            if row['patient_email'] == session['email']:
+                patient_reports.append(row)
+
+    # Reverse cronogical order
+    patient_reports.reverse()
+
+    # Print reports
+    if len(patient_reports):
+        for i in range(len(patient_reports)):
+            patient_reports[i].pop("patient_email")  # Ignore patient_email
+            items = list(patient_reports[i].items())
+
+            print(f"Report #{i + 1}")
+
+            for item in items[0: -1]:
+                print(f"{item[0]}: {item[1]}")
+            print()
+    else:
+        print("No reports")
+
+    # Wait for user command
+    while True:
+        help()
+
+        try:
+            take_input("Enter one of these commands: ")
+        except (InfoCommand, RedirectCommand):
+            return
+        else:
+            print("Invalid command.")
 
 
 def clear_terminal():
@@ -307,10 +479,10 @@ def check_password(password: str, confirm: str):
 
 
 def help():
-    print("Commands:")
+    print("Commands: ", end="")
     for command in commands:
         print(command, end=" ")
-        print()
+    print()
 
 
 def run_command(command: str):
