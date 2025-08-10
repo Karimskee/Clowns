@@ -1,9 +1,10 @@
-Karimskee:
+Plans:
 ----------
 1- add alignment to border() (left, center, right)
 2- add invalid command output
 3- validate inputs
 4- organize files
+5- Use windsurf function refactor
 
 
 Critical questions:
@@ -20,7 +21,3 @@ Snippets to add:
 ----------------
 1- File read
 2- File write
-
-
-Basmala:
---------

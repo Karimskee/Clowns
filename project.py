@@ -20,23 +20,13 @@ class RedirectCommand(Exception):
 
 
 session = {}
-session["email"] = "karimskee@gmail.com"
-session["name"] = "Karim Ghazy"
-session["type"] = "patient"
 commands = ["-help", "-login", "-register", "-home",
             "-schedule", "-receipts", "-reports"]
 
 
 def main():
     clear_terminal()
-    register_page()
-
-
-def login_required():
-    """Checks if the user is logged in to access certain pages"""
-    if not session.get("email"):
-        print("You must be logged in to access this page.")
-        login_page()
+    login_page()
 
 
 def register_page():
@@ -130,28 +120,27 @@ def login_page():
     except RedirectCommand:
         return
 
-    # # Check if the email is registered
-    # with open("filename.csv", "r") as File:
-    #     reader = DictReader(File, fieldnames=[
-    #                         "name", "field2", "password"])
-    #     for row in reader:
-    #         if row["field2"] == field2:
+    # Check if the email is registered
+    with open("users_login.csv", "r") as file:
+        reader = DictReader(file)
 
-    # Input validation went well
-    with open("users_login.csv", "r") as users_db:
-        reader = DictReader(users_db, fieldnames=[
-                            "name", "email", "password"])
         for row in reader:
-            if row["email"] == email and row["password"] == password:
-                session["email"] = email
-                session["name"] = row["name"]
-                home_page()
-                return
+            if row["email"] == email:
+                if row["password"] == password:
+                    session["name"] = row["name"]
+                    session["email"] = email
+                    session["type"] = row["type"]
+                    print("Successfully logged in.")
+                    home_page()
+                    return
+                else:
+                    print("Incorrect password.")
+                    login_page()
+                    return
 
-    # Login failed
-    print("Invalid email or password.")
-    login_page()
-    return
+        print("Email not found.")
+        login_page()
+        return
 
 
 def home_page():
@@ -187,7 +176,7 @@ def home_page():
         return
     elif choice == 4:
         session.clear()
-        register_page()
+        login_page()
     elif choice == 5:
         clear_terminal()
         sys.exit()
@@ -514,9 +503,17 @@ def run_command(command: str):
 
 
 def take_input(s: str):
+    """Takes user input while checking for program commands"""
     inpt = input(s).strip()
     run_command(inpt)
     return inpt
+
+
+def login_required():
+    """Checks if the user is logged in to access certain pages"""
+    if not session.get("email"):
+        print("You must be logged in to access this page.")
+        login_page()
 
 
 if __name__ == "__main__":
