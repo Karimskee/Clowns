@@ -7,6 +7,7 @@ from email_validator import EmailNotValidError, validate_email
 from math import ceil, floor
 import os
 import sys
+import string
 
 
 # If user typed an informative command (e.g. -help)
@@ -29,6 +30,16 @@ def main():
     login_page()
 
 
+"""
+██████╗  █████╗  ██████╗ ███████╗███████╗
+██╔══██╗██╔══██╗██╔════╝ ██╔════╝██╔════╝
+██████╔╝███████║██║  ███╗█████╗  ███████╗
+██╔═══╝ ██╔══██║██║   ██║██╔══╝  ╚════██║
+██║     ██║  ██║╚██████╔╝███████╗███████║
+╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝
+"""
+
+
 def register_page():
     """Patient registration page"""
     # Loops till the user successfully registers their account
@@ -46,7 +57,21 @@ def register_page():
         try:
             info.append(take_input("Name: "))
             info.append(take_input("Email: "))
-            info.append(take_input("Password: "))
+
+            # Input password while validating its strength
+            while True:
+                # Input password
+                password = take_input("Password: ")
+
+                # Check passwords strength
+                if not check_strong_password(password):
+                    print(
+                        "please enter at least 8 letters, one digit, a sympol, upper and lower character")
+                    continue
+                else:
+                    break
+
+            info.append(password)
             info.append(take_input("Repeat pasword: "))
         except InfoCommand:
             register_page()
@@ -131,7 +156,12 @@ def login_page():
                     session["email"] = email
                     session["type"] = row["type"]
                     print("Successfully logged in.")
-                    home_page()
+
+                    if session["type"] == "patient":
+                        home_page()
+                    else:
+                        doctor_page()
+
                     return
                 else:
                     print("Incorrect password.")
@@ -175,14 +205,15 @@ def home_page():
         reports_page()
         return
     elif choice == 4:
-        session.clear()
-        login_page()
+        logout()
     elif choice == 5:
         clear_terminal()
         sys.exit()
     else:
         print("Invalid choice.")
         home_page()
+
+    return
 
 
 def schedule_page():
@@ -284,23 +315,21 @@ def schedule_page():
         })
 
     # Add data to reports
+    with open("unfinished_reports.csv", "a", newline="") as file:
+        writer = DictWriter(file, fieldnames=[
+                            "patient_email", "doctor_name", "date", "turn", "notes"])
+
+        writer.writerow({
+            "patient_email": session["email"],
+            "doctor_name": doctor["name"],
+            "date": str(appointment_date),
+            "turn": turn,
+            "notes": "",
+        })
 
     # Successful appointment scheduling
     print("Your appointment has been scheduled successfully!")
     receipts_page()
-
-
-"""
-    with open("filename.csv", "r") as File:
-        reader = DictReader(File, fieldnames=[
-                            "name", "field2", "password"])
-        for row in reader:
-            if row["field2"] == field2:
-
-    with open("filename.csv", "a", newline="") as File:
-        writer = DictWriter(File, fieldnames=["field1", "field2", "field3"])
-        writer.writerow({"field1": field1, "field2": field2, "field3": field3})
-"""
 
 
 def receipts_page():
@@ -312,24 +341,35 @@ def receipts_page():
     border(page, 100)
 
     # Variable to store receipts
-    patient_receipts = []
+    receipts = []
 
     # Get receipts from the database
     with open("receipts.csv", 'r') as file:
         reader = DictReader(file)
 
         for row in reader:
-            if row['patient_email'] == session['email']:
-                patient_receipts.append(row)
+            # Get recipets for a patient or a doctor
+            if session["type"] == "patient":
+                if row['patient_email'] == session['email']:
+                    receipts.append(row)
+            else:
+                if row['doctor_name'] == session['name']:
+                    receipts.append(row)
 
     # Reverse cronogical order
-    patient_receipts.reverse()
+    receipts.reverse()
 
     # Print receipts
-    if len(patient_receipts):
-        for i in range(len(patient_receipts)):
-            patient_receipts[i].pop("patient_email")  # Ignore patient_email
-            items = list(patient_receipts[i].items())
+    if len(receipts):
+        for i in range(len(receipts)):
+            if session["type"] == "patient":
+                # Ignore patient_email if patient session
+                receipts[i].pop("patient_email")
+            else:
+                # Ignore doctor_name if doctor session
+                receipts[i].pop("doctor_name")
+
+            items = list(receipts[i].items())
 
             print(f"{i + 1}- ", end="")
 
@@ -344,7 +384,7 @@ def receipts_page():
         help()
 
         try:
-            take_input("Enter one of these commands: ")
+            take_input("Enter one of these commands: ").strip()
         except (InfoCommand, RedirectCommand):
             return
         else:
@@ -360,24 +400,35 @@ def reports_page():
     border(page, 100)
 
     # Variable to store reports
-    patient_reports = []
+    reports = []
 
     # Get reports from the database
     with open("finished_reports.csv", 'r') as file:
         reader = DictReader(file)
 
         for row in reader:
-            if row['patient_email'] == session['email']:
-                patient_reports.append(row)
+            # Get reports for a patient or a doctor (finished reports for doctors)
+            if session["type"] == "patient":
+                if row['patient_email'] == session['email']:
+                    reports.append(row)
+            else:
+                if row['doctor_name'] == session['name']:
+                    reports.append(row)
 
     # Reverse cronogical order
-    patient_reports.reverse()
+    reports.reverse()
 
     # Print reports
-    if len(patient_reports):
-        for i in range(len(patient_reports)):
-            patient_reports[i].pop("patient_email")  # Ignore patient_email
-            items = list(patient_reports[i].items())
+    if len(reports):
+        for i in range(len(reports)):
+            if session["type"] == "patient":
+                # Ignore patient_email if patient session
+                reports[i].pop("patient_email")
+            else:
+                # Ignore doctor_name if doctor session
+                reports[i].pop("doctor_name")
+
+            items = list(reports[i].items())
 
             print(f"Report #{i + 1}")
 
@@ -397,6 +448,172 @@ def reports_page():
             return
         else:
             print("Invalid command.")
+
+
+def doctor_page():
+    page = f"Welcome back Dr. {session["name"]}!\n"
+    page += "1- View your receipts\n"
+    page += "2- View unfinished reports\n"
+    page += "3- View finished reports\n"
+    page += "4- Logout"
+    border(page, 100)
+
+    while True:
+        try:
+            choice = int(take_input("Enter your choice: "))
+        except (InfoCommand, RedirectCommand):
+            return
+        else:
+            if choice.is_integer() and 1 <= choice <= 4:
+                break
+
+    if choice == 1:
+        receipts_page()
+    elif choice == 2:
+        unfinished_reports_page()
+    elif choice == 3:
+        finished_reports_page()
+    elif choice == 4:
+        logout()
+    else:
+        print("Invalid command.")
+        doctor_page()
+
+    return
+
+
+def unfinished_reports_page():
+    """Display all unfinished reports for the doctor to finish (unfinished_reports.csv)"""
+    page = "Unfinished reports\n"
+    border(page, 100)
+
+    # Store all doctor's unfinished_reports in a variable
+    unfinished = []
+
+    # Search for all rows for a doctor name
+    with open("unfinished_reports.csv", 'r') as file:
+        reader = DictReader(file)
+
+        for row in reader:
+            if row['doctor_name'] == session['name']:
+                unfinished.append(row)
+
+    if not len(unfinished):
+        print("All reports are finished")
+
+        # Wait for user command
+        while True:
+            help()
+
+            try:
+                take_input("Enter one of these commands: ")
+            except (InfoCommand, RedirectCommand):
+                return
+            else:
+                print("Invalid command.")
+
+    # Get the doctor to choose which report to finish
+    for i in range(len(unfinished)):
+        unfinished[i].pop("doctor_name")
+
+        items = list(unfinished[i].items())
+
+        print(f"{i + 1}- ", end="")
+        for item in items[0: -1]:
+            print(f"{item[0]}: {item[1]}, ", end="")
+        print(f"{items[-1][0]}: {items[-1][1]}")
+
+    # Get chosen report number
+    try:
+        chosen_number = int(take_input("Report number to finish: "))
+        notes = take_input("Notes: ")
+    except InfoCommand:
+        unfinished_reports_page()
+        return
+    except RedirectCommand:
+        return
+
+    # Get chosen report
+    chosen_report = unfinished[chosen_number - 1]
+
+    # Add back doctor_name which was removed for easier printing process
+    chosen_report["doctor_name"] = session["name"]
+
+    # Store the whole unfinished_reports file in a variable (to remove the finished reports)
+    all_reports = []
+
+    # Rewrite the unfinished_reports such that it only includes untouched reports
+    with open("unfinished_reports.csv", 'r') as file:
+        reader = DictReader(file)
+        for row in reader:
+            if row != chosen_report:
+                all_reports.append(row)
+
+    # Add notes after getting all_reports, so the condition is valid
+    chosen_report["notes"] = notes
+
+    with open("unfinished_reports.csv", "w", newline="") as file:
+        writer = DictWriter(file, fieldnames=[
+            "patient_email", "doctor_name", "date", "turn", "notes"])
+        writer.writeheader()
+
+        if len(all_reports):
+            writer.writerows(all_reports)
+
+    # Append finished report to the finished_reports file
+    with open("finished_reports.csv", "a", newline="") as file:
+        writer = DictWriter(file, fieldnames=[
+            "patient_email", "doctor_name", "date", "turn", "notes"])
+        writer.writerow(chosen_report)
+
+    print("Report finished.")
+    unfinished_reports_page()
+
+
+def finished_reports_page():
+    """Display all finished reports for the doctor (finished_reports.csv)"""
+    page = "Finished reports\n"
+    border(page, 100)
+
+    finished = []
+
+    with open("finished_reports.csv", "r") as file:
+        reader = DictReader(file)
+        finished = list(reader)
+
+    if len(finished):
+        for i in range(len(finished)):
+            finished[i].pop("doctor_name")
+
+            items = list(finished[i].items())
+
+            print(f"{i + 1}- ", end="")
+            for item in items[0: -1]:
+                print(f"{item[0]}: {item[1]}, ", end="")
+            print(f"{items[-1][0]}: {items[-1][1]}")
+    else:
+        print("No reports found.")
+
+    # Wait for user command
+    while True:
+        help()
+
+        try:
+            take_input("Enter one of these commands: ")
+        except (InfoCommand, RedirectCommand):
+            return
+        else:
+            print("Invalid command.")
+
+
+"""
+██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
+██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
+███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
+██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
+██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
+╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
+"""
 
 
 def clear_terminal():
@@ -460,6 +677,24 @@ def check_email(email: str):
     except EmailNotValidError:
         return None
 
+# check password
+
+
+def check_strong_password(password: str):
+    """Checks if the password is strong enough"""
+    if len(password) < 8:
+        return False
+    if not any(char.isdigit() for char in password):
+        return False
+    if not any(char.isupper() for char in password):
+        return False
+    if not any(char.islower() for char in password):
+        return False
+    if not any(char in string.punctuation for char in password):
+        return False
+
+    return True
+
 
 def check_password(password: str, confirm: str):
     if password != confirm:
@@ -514,6 +749,11 @@ def login_required():
     if not session.get("email"):
         print("You must be logged in to access this page.")
         login_page()
+
+
+def logout():
+    session.clear()
+    login_page()
 
 
 if __name__ == "__main__":

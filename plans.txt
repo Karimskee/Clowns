@@ -1,23 +1,71 @@
 Plans:
 ----------
-1- add alignment to border() (left, center, right)
-2- add invalid command output
-3- validate inputs
-4- organize files
-5- Use windsurf function refactor
+- add alignment to border() (left, center, right)
+- add invalid command output
+- validate inputs
+- organize files
+- use windsurf function refactor
+- code optimization and minimalizing
+- add logout and exit command
+- try -> return _page()
+- use classes
+- patient specific pages & doctor specific pages
+- doctors reports page
 
 
 Critical questions:
 -------------------
-1- OOP where 🤔
+- OOP where 🤔
 
 
 Issues:
 -------
-1- -home after -register and -schedule dispalys "Karim Ghazy" instead of current session username
+- -home after -register and -schedule dispalys "Karim Ghazy" instead of current session username
+- logged in -> view receipts -> -schedule LOGIN REQUIRED
+- review all InfoCommand exception statements
+- doctor viewing receipts/reports and types command -help, it exits the program
+- remove doctor notes from unfinished reports page
+
 
 
 Snippets to add:
 ----------------
 1- File read
 2- File write
+
+
+Karimskee:
+----------
+
+Basmala:
+--------
+- Input validation -> almost done
+
+
+Input validation:
+-----------------
+Use .strip() for all inputs
+
+For input that require numbers, validate if user inputs a number
+
+Names:
+    - First and last name only
+    - Only alphabetical characters and a single space
+
+Emails:
+    - Using the email-validator library (already implemented)
+
+Password:
+    - Use a library for strong password validation  -> almost done
+
+
+Classes:
+--------
+- a class for commands
+    commands.doctors -> [-login, -home, -receipts, -unfinished, -finished, -logout, -exit]
+    commands.patients = [-help, -login, -register, -home, -schedule, -receipts, -reports, -logout, -exit]
+
+- a class for the session
+    session.name
+    session.email
+    session.type
