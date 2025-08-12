@@ -55,7 +55,22 @@ def register_page():
 
         # Get user input
         try:
-            info.append(take_input("Name: "))
+            #check name has first and last 
+            while True :
+                #input name
+                name = take_input("Name: ")
+                
+                #check name
+                if not check_name_again(name):
+                    print("Name should have first and last")
+                    continue
+                else:
+                    if not valid_name(name):
+                        print("Not a valid name")
+                    else:
+                        break
+                
+            info.append(name)       
             info.append(take_input("Email: "))
 
             # Input password while validating its strength
@@ -78,6 +93,8 @@ def register_page():
             return
         except RedirectCommand:
             return
+        
+                
 
         # Extract user information
         name, email, password, confirm = info
@@ -699,6 +716,22 @@ def check_strong_password(password: str):
 def check_password(password: str, confirm: str):
     if password != confirm:
         return False
+    return True
+
+
+    #count spaces in name
+def check_name_again(name: str):
+    return name.count(' ') == 1
+
+#check is a valid name
+def valid_name(name : str):
+    
+    for char in name : 
+        if char.isdigit() :
+            return False
+        if char in string.punctuation :
+            return False
+        
     return True
 
 
