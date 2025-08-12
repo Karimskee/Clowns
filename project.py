@@ -55,12 +55,12 @@ def register_page():
 
         # Get user input
         try:
-            #check name has first and last 
-            while True :
-                #input name
+            # check name has first and last
+            while True:
+                # input name
                 name = take_input("Name: ")
-                
-                #check name
+
+                # check name
                 if not check_name_again(name):
                     print("Name should have first and last")
                     continue
@@ -69,9 +69,20 @@ def register_page():
                         print("Not a valid name")
                     else:
                         break
-                
-            info.append(name)       
-            info.append(take_input("Email: "))
+
+            info.append(name)
+            while True:
+                # email input
+                gmail = take_input("Email: ")
+                # Returns None if invalid, normalized email if valid
+
+                email = check_email(gmail)
+                if not email:
+                    print("Invalid email address.")
+                else:
+                    email = gmail
+                    info.append(email)
+                    break
 
             # Input password while validating its strength
             while True:
@@ -93,23 +104,14 @@ def register_page():
             return
         except RedirectCommand:
             return
-        
-                
 
         # Extract user information
         name, email, password, confirm = info
-
         # Validate user information
         name = check_name(name)
 
         if not check_missing(email, password, confirm):
             print("Missing required input.")
-            continue
-
-        # Returns None if invalid, normalized email if valid
-        email = check_email(email)
-        if not email:
-            print("Invalid email address.")
             continue
 
         if not check_password(password, confirm):
@@ -151,6 +153,7 @@ def login_page():
     page += "If you don't have an account, type -register\n"
     page += "For the list of the program commands, type -help"
     border(page, 100)
+    print(session)  # DEBUG
 
     # Get user login information
     try:
@@ -170,8 +173,9 @@ def login_page():
             if row["email"] == email:
                 if row["password"] == password:
                     session["name"] = row["name"]
-                    session["email"] = email
+                    session["email"] = row["email"]
                     session["type"] = row["type"]
+
                     print("Successfully logged in.")
 
                     if session["type"] == "patient":
@@ -192,9 +196,10 @@ def login_page():
 
 def home_page():
     """Hospital home page"""
+    print(session)  # DEBUG
     login_required()
 
-    page = "Clowns hospital\n"
+    page = "Ducktors hospital\n"
     page += f"how can we serve you today, {session["name"]}?\n"
     page += "1- Schedule an appointment\n"
     page += "2- View your receipts\n"
@@ -203,14 +208,17 @@ def home_page():
     page += "5- Close the program"
 
     border(page, 100)
-
-    try:
-        choice = int(take_input("Enter your choice: "))
-    except InfoCommand:
-        home_page()
-        return
-    except RedirectCommand:
-        return
+    while True:
+        try:
+            choice = int(take_input("Enter your choice: "))
+            break
+        except ValueError or UnboundLocalError:
+            print()
+        except InfoCommand:
+            home_page()
+            return
+        except RedirectCommand:
+            return
 
     if choice == 1:
         schedule_page()
@@ -235,6 +243,7 @@ def home_page():
 
 def schedule_page():
     """Schedule an appointment with a doctor page"""
+    print(session)  # DEBUG
     login_required()
 
     # Page UI
@@ -260,13 +269,17 @@ def schedule_page():
     border(page, 100)
 
     # Get desired specialization number from the user
-    try:
-        spec_num = int(take_input("Enter the specialization number: "))
-    except InfoCommand:
-        schedule_page()
-        return
-    except RedirectCommand:
-        return
+    while True:
+        try:
+            spec_num = int(take_input("Enter the specialization number: "))
+            break
+        except ValueError or UnboundLocalError:
+            print()
+        except InfoCommand:
+            schedule_page()
+            return
+        except RedirectCommand:
+            return
 
     # List of doctors with their info in the desired specialization
     doctors = []
@@ -284,13 +297,17 @@ def schedule_page():
         print(f"{i + 1}- {doctors[i]['name']}")
 
     # Get desired doctor number from the user
-    try:
-        doctor_num = int(take_input("Enter the doctor number: "))
-    except InfoCommand:
-        schedule_page()
-        return
-    except RedirectCommand:
-        return
+    while True:
+        try:
+            doctor_num = int(take_input("Enter the doctor number: "))
+            break
+        except ValueError or UnboundLocalError:
+            print()
+        except InfoCommand:
+            schedule_page()
+            return
+        except RedirectCommand:
+            return
 
     # Get desired doctor information
     doctor = doctors[doctor_num - 1]
@@ -351,6 +368,7 @@ def schedule_page():
 
 def receipts_page():
     """Display all patient receipts"""
+    print(session)  # DEBUG
     login_required()
 
     # Page UI
@@ -367,10 +385,10 @@ def receipts_page():
         for row in reader:
             # Get recipets for a patient or a doctor
             if session["type"] == "patient":
-                if row['patient_email'] == session['email']:
+                if row["patient_email"] == session["email"]:
                     receipts.append(row)
             else:
-                if row['doctor_name'] == session['name']:
+                if row["doctor_name"] == session["name"]:
                     receipts.append(row)
 
     # Reverse cronogical order
@@ -396,12 +414,14 @@ def receipts_page():
     else:
         print("No receipts")
 
+    print(session)  # DEBUG
+
     # Wait for user command
     while True:
         help()
 
         try:
-            take_input("Enter one of these commands: ").strip()
+            take_input("Enter one of these commands: ")
         except (InfoCommand, RedirectCommand):
             return
         else:
@@ -478,11 +498,13 @@ def doctor_page():
     while True:
         try:
             choice = int(take_input("Enter your choice: "))
+            if 1 <= choice <= 4:
+                break
+        except ValueError or UnboundLocalError:
+            print()
+
         except (InfoCommand, RedirectCommand):
             return
-        else:
-            if choice.is_integer() and 1 <= choice <= 4:
-                break
 
     if choice == 1:
         receipts_page()
@@ -529,26 +551,31 @@ def unfinished_reports_page():
             else:
                 print("Invalid command.")
 
-    # Get the doctor to choose which report to finish
+    # Print doctor's unfinished reports
     for i in range(len(unfinished)):
         unfinished[i].pop("doctor_name")
 
         items = list(unfinished[i].items())
 
         print(f"{i + 1}- ", end="")
-        for item in items[0: -1]:
+        for item in items[0: -2]:
             print(f"{item[0]}: {item[1]}, ", end="")
-        print(f"{items[-1][0]}: {items[-1][1]}")
+        print(f"{items[-2][0]}: {items[-2][1]}")
 
     # Get chosen report number
-    try:
-        chosen_number = int(take_input("Report number to finish: "))
-        notes = take_input("Notes: ")
-    except InfoCommand:
-        unfinished_reports_page()
-        return
-    except RedirectCommand:
-        return
+    while True:
+        try:
+            chosen_number = int(take_input("Report number to finish: "))
+            notes = take_input("Notes: ")
+            if 1 <= chosen_number <= len(unfinished):
+                break
+        except ValueError or UnboundLocalError:
+            print()
+        except InfoCommand:
+            unfinished_reports_page()
+            return
+        except RedirectCommand:
+            return
 
     # Get chosen report
     chosen_report = unfinished[chosen_number - 1]
@@ -562,6 +589,7 @@ def unfinished_reports_page():
     # Rewrite the unfinished_reports such that it only includes untouched reports
     with open("unfinished_reports.csv", 'r') as file:
         reader = DictReader(file)
+
         for row in reader:
             if row != chosen_report:
                 all_reports.append(row)
@@ -719,19 +747,21 @@ def check_password(password: str, confirm: str):
     return True
 
 
-    #count spaces in name
+# count spaces in name
 def check_name_again(name: str):
     return name.count(' ') == 1
 
-#check is a valid name
-def valid_name(name : str):
-    
-    for char in name : 
-        if char.isdigit() :
+# check is a valid name
+
+
+def valid_name(name: str):
+
+    for char in name:
+        if char.isdigit():
             return False
-        if char in string.punctuation :
+        if char in string.punctuation:
             return False
-        
+
     return True
 
 
@@ -744,8 +774,6 @@ def help():
 
 def run_command(command: str):
     """Executes program commands"""
-    from project import register_page, login_page, home_page, schedule_page, receipts_page, reports_page
-
     # Information commands
     if command == "-help":
         help()
@@ -785,6 +813,7 @@ def login_required():
 
 
 def logout():
+    """Clears the session and returns to the login page"""
     session.clear()
     login_page()
 
