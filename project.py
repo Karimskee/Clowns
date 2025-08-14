@@ -9,18 +9,44 @@ import os
 import sys
 import string
 
-
-# If user typed an informative command (e.g. -help)
-class InfoCommand(Exception):
-    pass
+# patient session class
 
 
-# If user typed a redirective command (e.g. -login)
-class RedirectCommand(Exception):
-    pass
+class Session:
+    def __init__(self, name, email, type):
+        self.name = name
+        self.email = email
+        self.type = type
+
+    def __str__(self):
+        return f"Name: {self.name}, Email: {self.email}, Type: {self.type}"
+
+    def check(self):
+        if self.type == 'doctor':
+            return 'doctor'
+        elif self.type == 'patient':
+            return 'patient'
 
 
-session = {}
+# commands class
+class Commands(Session):
+    doctors = ['-login', '-home', '-receipts',
+               '-unfinished', '-finished', '-logout', '-exit']
+    patients = ['-help', '-login', '-register', '-home',
+                '-schedule', '-receipts', '-reports', '-logout', '-exit']
+
+    def __init__(self, name, email, type):
+        super().__init__(name, email, type)
+        if self.check() == 'doctor':
+            self.commands = self.doctors
+        else:
+            self.commands = self.patients
+
+    def __str__(self):
+        return ", ".join(self.commands)
+
+
+session = Session()
 commands = ["-help", "-login", "-register", "-home",
             "-schedule", "-receipts", "-reports"]
 
@@ -122,7 +148,7 @@ def register_page():
         break
 
     # If email is already registered
-    with open("users_login.csv", "r") as users_db:
+    with open(r"C:\Users\elhaty\OneDrive - Faculty of Computers & Artificial Intelligence\Documents\GitHub\Clowns\users_login.csv", "r") as users_db:
         reader = DictReader(users_db)
 
         for row in reader:
@@ -200,7 +226,7 @@ def home_page():
     login_required()
 
     page = "Ducktors hospital\n"
-    page += f"how can we serve you today, {session["name"]}?\n"
+    page += f"how can we serve you today, {session['name']}?\n"
     page += "1- Schedule an appointment\n"
     page += "2- View your receipts\n"
     page += "3- View your reports\n"
@@ -488,7 +514,7 @@ def reports_page():
 
 
 def doctor_page():
-    page = f"Welcome back Dr. {session["name"]}!\n"
+    page = f"Welcome back Dr. {session['name']}!\n"
     page += "1- View your receipts\n"
     page += "2- View unfinished reports\n"
     page += "3- View finished reports\n"
@@ -767,7 +793,7 @@ def valid_name(name: str):
 
 def help():
     print("Commands: ", end="")
-    for command in commands:
+    for command in commands('doctor'):
         print(command, end=" ")
     print()
 
