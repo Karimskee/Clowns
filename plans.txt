@@ -12,6 +12,7 @@ Plans:
 - patient specific pages & doctor specific pages
 - doctors reports page
 
+
 Critical questions:
 -------------------
 - OOP where 🤔

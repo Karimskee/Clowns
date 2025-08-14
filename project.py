@@ -9,46 +9,113 @@ import os
 import sys
 import string
 
+
+# If user typed an informative command (e.g. -help)
+class InfoCommand(Exception):
+    pass
+
+
+# If user typed a redirective command (e.g. -login)
+class RedirectCommand(Exception):
+    pass
+
+
 # patient session class
-
-
 class Session:
-    def __init__(self, name, email, type):
-        self.name = name
-        self.email = email
-        self.type = type
+    def __init__(self):
+        self.name = ""
+        self.email = ""
+        self.type = ""
 
     def __str__(self):
         return f"Name: {self.name}, Email: {self.email}, Type: {self.type}"
 
-    def check(self):
-        if self.type == 'doctor':
-            return 'doctor'
-        elif self.type == 'patient':
-            return 'patient'
-
 
 # commands class
 class Commands(Session):
-    doctors = ['-login', '-home', '-receipts',
-               '-unfinished', '-finished', '-logout', '-exit']
-    patients = ['-help', '-login', '-register', '-home',
-                '-schedule', '-receipts', '-reports', '-logout', '-exit']
 
-    def __init__(self, name, email, type):
-        super().__init__(name, email, type)
-        if self.check() == 'doctor':
-            self.commands = self.doctors
-        else:
-            self.commands = self.patients
+    def __init__(self):
+        self.patients = ['-help', '-login', '-register', '-home',
+                         '-schedule', '-receipts', '-reports', '-logout', '-exit']
+
+        self.doctors = ['-login', '-home', '-receipts',
+                        '-unfinished', '-finished', '-logout', '-exit']
 
     def __str__(self):
-        return ", ".join(self.commands)
+        output = "Commands:\n"
+
+        if session.type == "patient":
+            output += ", ".join(self.patients)
+        else:
+            output += ", ".join(self.doctors)
+
+        output += "\n"
+        return output
+
+    def run(self, command):
+        """Executes program commands"""
+        if command.startswith("-"):
+            # Information commands
+            if command == "-help":
+                print(command)
+                raise InfoCommand
+            # Page redirection commands
+            elif command == "-login":
+                login_page()
+            elif command == "-register":
+                register_page()
+            elif command == "-home":
+                home_page()
+            elif command == "-schedule":
+                schedule_page()
+            elif command == "-receipts":
+                receipts_page()
+            elif command == "-reports":
+                reports_page()
+            elif command == "-logout":
+                logout()
+            elif command == "-exit":
+                exit_program()
+            elif command == "-unfinished":
+                unfinished_reports_page()
+            elif command == "-finished":
+                finished_reports_page()
+            else:
+                print("Invalid command.")
+
+        return False
+
+
+def run_command(command: str):
+    """Executes program commands"""
+    # Information commands
+    if command == "-help":
+        help()
+        raise InfoCommand
+    # Page redirection commands
+    elif command == "-login":
+        login_page()
+    elif command == "-register":
+        register_page()
+    elif command == "-home":
+        home_page()
+    elif command == "-schedule":
+        schedule_page()
+    elif command == "-receipts":
+        receipts_page()
+    elif command == "-reports":
+        reports_page()
+    # Invalid command
+    else:
+        return False
+
+    raise RedirectCommand
 
 
 session = Session()
-commands = ["-help", "-login", "-register", "-home",
-            "-schedule", "-receipts", "-reports"]
+commands = Commands()
+
+print(commands)
 
 
 def main():
@@ -87,16 +154,13 @@ def register_page():
                 name = take_input("Name: ")
 
                 # check name
-                if not check_name_again(name):
-                    print("Name should have first and last")
-                    continue
+                if valid_name(name) == True:
+                    break
                 else:
-                    if not valid_name(name):
-                        print("Not a valid name")
-                    else:
-                        break
+                    print(valid_name(name))
 
             info.append(name)
+
             while True:
                 # email input
                 gmail = take_input("Email: ")
@@ -166,9 +230,9 @@ def register_page():
 
     # Registration successful
     print("Account has been registered successfully!")
-    session["email"] = email
-    session["name"] = name
-    session["type"] = "patient"
+    session.email = email
+    session.name = name
+    session.type = "patient"
     home_page()
 
 
@@ -179,7 +243,6 @@ def login_page():
     page += "If you don't have an account, type -register\n"
     page += "For the list of the program commands, type -help"
     border(page, 100)
-    print(session)  # DEBUG
 
     # Get user login information
     try:
@@ -198,13 +261,13 @@ def login_page():
         for row in reader:
             if row["email"] == email:
                 if row["password"] == password:
-                    session["name"] = row["name"]
-                    session["email"] = row["email"]
-                    session["type"] = row["type"]
+                    session.name = row["name"]
+                    session.email = row["email"]
+                    session.type = row["type"]
 
                     print("Successfully logged in.")
 
-                    if session["type"] == "patient":
+                    if session.type == "patient":
                         home_page()
                     else:
                         doctor_page()
@@ -222,7 +285,6 @@ def login_page():
 
 def home_page():
     """Hospital home page"""
-    print(session)  # DEBUG
     login_required()
 
     page = "Ducktors hospital\n"
@@ -269,7 +331,6 @@ def home_page():
 
 def schedule_page():
     """Schedule an appointment with a doctor page"""
-    print(session)  # DEBUG
     login_required()
 
     # Page UI
@@ -366,7 +427,7 @@ def schedule_page():
                             fieldnames=["patient_email", "doctor_name",
                                         "turn", "cost", "clinic", "date"])
         writer.writerow({
-            "patient_email": session["email"],
+            "patient_email": session.email,
             "doctor_name": doctor["name"],
             "turn": turn,
             "cost": "$50",
@@ -380,7 +441,7 @@ def schedule_page():
                             "patient_email", "doctor_name", "date", "turn", "notes"])
 
         writer.writerow({
-            "patient_email": session["email"],
+            "patient_email": session.email,
             "doctor_name": doctor["name"],
             "date": str(appointment_date),
             "turn": turn,
@@ -394,7 +455,6 @@ def schedule_page():
 
 def receipts_page():
     """Display all patient receipts"""
-    print(session)  # DEBUG
     login_required()
 
     # Page UI
@@ -410,11 +470,11 @@ def receipts_page():
 
         for row in reader:
             # Get recipets for a patient or a doctor
-            if session["type"] == "patient":
-                if row["patient_email"] == session["email"]:
+            if session.type == "patient":
+                if row["patient_email"] == session.email:
                     receipts.append(row)
             else:
-                if row["doctor_name"] == session["name"]:
+                if row["doctor_name"] == session.name:
                     receipts.append(row)
 
     # Reverse cronogical order
@@ -423,7 +483,7 @@ def receipts_page():
     # Print receipts
     if len(receipts):
         for i in range(len(receipts)):
-            if session["type"] == "patient":
+            if session.type == "patient":
                 # Ignore patient_email if patient session
                 receipts[i].pop("patient_email")
             else:
@@ -439,8 +499,6 @@ def receipts_page():
             print(f"{items[-1][0]}: {items[-1][1]}")
     else:
         print("No receipts")
-
-    print(session)  # DEBUG
 
     # Wait for user command
     while True:
@@ -471,7 +529,7 @@ def reports_page():
 
         for row in reader:
             # Get reports for a patient or a doctor (finished reports for doctors)
-            if session["type"] == "patient":
+            if session.type == "patient":
                 if row['patient_email'] == session['email']:
                     reports.append(row)
             else:
@@ -484,7 +542,7 @@ def reports_page():
     # Print reports
     if len(reports):
         for i in range(len(reports)):
-            if session["type"] == "patient":
+            if session.type == "patient":
                 # Ignore patient_email if patient session
                 reports[i].pop("patient_email")
             else:
@@ -607,7 +665,7 @@ def unfinished_reports_page():
     chosen_report = unfinished[chosen_number - 1]
 
     # Add back doctor_name which was removed for easier printing process
-    chosen_report["doctor_name"] = session["name"]
+    chosen_report["doctor_name"] = session.name
 
     # Store the whole unfinished_reports file in a variable (to remove the finished reports)
     all_reports = []
@@ -727,11 +785,11 @@ def border(s: str, size: int = 0):
     print("+" + "-" * (size + 2) + "+")  # Border bottom
 
 
-def check_name(name: str):
-    """Validates user name"""
-    if not name:
-        return "User"  # name is optional, default is "User"
-    return name
+# def check_name(name: str):
+#     """Validates user name"""
+#     if not name:
+#         return "User"  # name is optional, default is "User"
+#     return name
 
 
 def check_missing(email: str, password: str, confirm: str):
@@ -773,61 +831,29 @@ def check_password(password: str, confirm: str):
     return True
 
 
-# count spaces in name
-def check_name_again(name: str):
-    return name.count(' ') == 1
-
 # check is a valid name
 
 
 def valid_name(name: str):
+    spaces = name.count(' ')  # count spaces
 
-    for char in name:
-        if char.isdigit():
-            return False
-        if char in string.punctuation:
-            return False
+    if len(name) < 1:
+        return "Name: "
+
+    if spaces != 1:
+        return "Format: First_Name Last_Name."
+
+    if any(char.isdigit() for char in name) or \
+            any(char in string.punctuation for char in name):
+        return "Invalid name, only alphabetical characters allowed."
 
     return True
-
-
-def help():
-    print("Commands: ", end="")
-    for command in commands('doctor'):
-        print(command, end=" ")
-    print()
-
-
-def run_command(command: str):
-    """Executes program commands"""
-    # Information commands
-    if command == "-help":
-        help()
-        raise InfoCommand
-    # Page redirection commands
-    elif command == "-login":
-        login_page()
-    elif command == "-register":
-        register_page()
-    elif command == "-home":
-        home_page()
-    elif command == "-schedule":
-        schedule_page()
-    elif command == "-receipts":
-        receipts_page()
-    elif command == "-reports":
-        reports_page()
-    # Invalid command
-    else:
-        return False
-
-    raise RedirectCommand
 
 
 def take_input(s: str):
     """Takes user input while checking for program commands"""
     inpt = input(s).strip()
-    run_command(inpt)
+    commands.run(inpt)
     return inpt
 
 
@@ -842,6 +868,12 @@ def logout():
     """Clears the session and returns to the login page"""
     session.clear()
     login_page()
+
+
+def exit_program():
+    """Clears the terminal and exits the program"""
+    clear_terminal()
+    sys.exit()
 
 
 if __name__ == "__main__":
