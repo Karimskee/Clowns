@@ -8,14 +8,15 @@ Functionalities:
 For patients: schedule appointments, view self records and doctor reports.
 For doctors: write reports, view patients records
 """
+from colorama import Fore, Style
 from csv import DictReader, DictWriter
 from datetime import date, timedelta
 from email_validator import EmailNotValidError, validate_email
 from math import ceil, floor
 import os
-import sys
+import pyfiglet
 import string
-from colorama import Fore, Style, init
+import sys
 
 
 # If user typed an informative command (e.g. -help)
@@ -56,7 +57,7 @@ class Commands(Session):
 
     # Prints available commands for user (doctor or patient commands)
     def __str__(self):
-        output = "Commands:\n"
+        output = "\n Commands:\n "
 
         if session.type == "patient":
             output += ", ".join(self.patients)
@@ -75,7 +76,7 @@ class Commands(Session):
         if command.startswith("-"):
             # Information commands
             if command == "-help":
-                print(command)
+                print(Fore.YELLOW, commands)
                 raise InfoCommand
             
             # Page redirection commands
@@ -84,7 +85,10 @@ class Commands(Session):
             elif command == "-register":
                 register_page()
             elif command == "-home":
-                home_page()
+                if session.type == "patient":
+                    home_page()
+                else:
+                    doctor_page()
             elif command == "-schedule":
                 schedule_page()
             elif command == "-receipts":
@@ -100,7 +104,7 @@ class Commands(Session):
             elif command == "-finished":
                 finished_reports_page()
             else:
-                print("Invalid command.")
+                print(Fore.RED, "Invalid command.")
                 return False
             
         # Not a command at all
@@ -130,15 +134,20 @@ def main():
 ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝
 """
 
+def ducktors():
+    print()
+    ducktors = "Ducktors Hospital"
+    print(Fore.YELLOW + Style.BRIGHT + pyfiglet.figlet_format(ducktors, width=200, font="ansi_shadow", justify="left"), end="")
+
 
 def login_page():
     """Patient/doctor login page"""
     # Page UI
-    print()
+    ducktors()
     page =  "Log in to your account\n"
     page += "---------------------\n"
-    page += "For the list of the program commands, type -help\n"
-    page += "If you don't have an account, type -register"
+    page += "No account? -register\n"
+    page += "For program commands: -help"
     border(page)
 
     # Get user login information
@@ -156,7 +165,7 @@ def login_page():
                     session.email = row["email"]
                     session.type = row["type"]
 
-                    print("Successfully logged in.")
+                    print(Fore.GREEN, "Successfully logged in.")
 
                     if session.type == "patient":
                         home_page()
@@ -165,11 +174,11 @@ def login_page():
 
                     return
                 else:
-                    print("Incorrect password.")
+                    print(Fore.RED, "Incorrect password.")
                     login_page()
                     return
 
-        print("Email not found.")
+        print(Fore.RED, "Email not found.")
         login_page()
         return
 
@@ -186,8 +195,8 @@ def register_page():
         print()
         page = "Register your account\n"
         page += "---------------------\n"
-        page += "For the list of the program commands, type -help\n"
-        page += "If you are a doctor or already have an account, type -login"
+        page += "For program commands: -help\n"
+        page += "Have an account? -login"
         border(page)
 
         # Get user input
@@ -204,7 +213,7 @@ def register_page():
 
             # Check passwords strength
             if not is_strong_password(password):
-                print(
+                print(Fore.RED,
                     "please enter at least 8 letters, one digit, a sympol, upper and lower character")
             else:
                 break
@@ -218,7 +227,7 @@ def register_page():
 
         # Validate passwords match
         if not is_match(password, confirm):
-            print("Passwords doesn't match.")
+            print(Fore.RED, "Passwords doesn't match.")
             continue
 
         # Input validation went well
@@ -230,7 +239,7 @@ def register_page():
 
         for row in reader:
             if row["email"] == email:
-                print("Email already exists, consider logging in instead")
+                print(Fore.RED, "Email already exists, consider logging in instead")
                 login_page()
                 return
 
@@ -242,7 +251,7 @@ def register_page():
             {"name": name, "email": email, "password": password, "type": "patient"})
 
     # Registration successful
-    print("Account has been registered successfully!")
+    print(Fore.GREEN, "Account has been registered successfully!")
     session.email = email
     session.name = name
     session.type = "patient"
@@ -252,12 +261,12 @@ def register_page():
 def home_page():
     """Hospital home page"""
     login_required()
+    patient_specific()
 
-    # UI
+    # Page UI
     print()
-    page = "Ducktors hospital\n"
-    page += f"how can we serve you today, {session.name}?\n"
-    page += "----------------------------" + "-" * len(session.name) + "\n"
+    page = f"Your orders, {session.name}?\n"
+    page +=  "--------------" + "-" * len(session.name) + "\n"
     page += "!left 1- Schedule an appointment\n"
     page += "!left 2- View your receipts\n"
     page += "!left 3- View your reports\n"
@@ -269,8 +278,10 @@ def home_page():
         try:
             choice = int(get_input("Enter your choice: "))
             break
-        except:
+        except ValueError:
             ...
+        except RedirectCommand:
+            return
 
     if choice == 1:
         schedule_page()
@@ -287,7 +298,7 @@ def home_page():
         clear_terminal()
         sys.exit()
     else:
-        print("Invalid choice.")
+        print(Fore.RED, "Invalid choice.")
         home_page()
 
     return
@@ -296,12 +307,13 @@ def home_page():
 def schedule_page():
     """Schedule an appointment with a doctor page"""
     login_required()
+    patient_specific()
 
     # Page UI
     print()
     page = "Schedule an appointment\n"
     page += "-----------------------\n"
-    page += "Specializations:"
+    page += "!left Specializations:"
 
     # Set of specializations the hospital offers
     specs = set()
@@ -313,9 +325,9 @@ def schedule_page():
             specs.add(row["specialization"])
 
     # Add specializations to the page UI
-    specs = list(specs)
+    specs = list(sorted(specs)) 
     for i in range(len(specs)):
-        page += f"\n{i + 1}- {specs[i]}"
+        page += f"\n!left {i + 1}- {specs[i]}"
 
     # Print the page UI
     border(page)
@@ -346,10 +358,11 @@ def schedule_page():
 
     # Print the available doctors
     for i in range(len(doctors)):
-        print(f"{i + 1}- {doctors[i]['name']}")
+        print(Fore.BLUE, f"{i + 1}- {doctors[i]['name']}")
 
     # Get desired doctor number from the user
     while True:
+        print()
         try:
             doctor_num = int(get_input("Enter the doctor number: "))
             break
@@ -414,7 +427,7 @@ def schedule_page():
         })
 
     # Successful appointment scheduling
-    print("Your appointment has been scheduled successfully!")
+    print(Fore.GREEN, "Your appointment has been scheduled successfully!")
     receipts_page()
 
 
@@ -458,29 +471,31 @@ def receipts_page():
 
             items = list(receipts[i].items())
 
-            print(f"{i + 1}- ", end="")
+            print(Fore.MAGENTA, f"{i + 1}- ", end="")
 
             for item in items[0: -1]:
                 print(f"{item[0]}: {item[1]}, ", end="")
             print(f"{items[-1][0]}: {items[-1][1]}")
     else:
-        print("No receipts")
+        print(Fore.RED, "No receipts")
 
     # Wait for user command
     while True:
-        print(commands)
-
+        print()
         try:
-            get_input("Enter one of these commands: ")
-        except (InfoCommand, RedirectCommand):
+            get_input("Enter a program command (-help for commands): ")
+        except InfoCommand:
+            continue
+        except RedirectCommand:
             return
         else:
-            print("Invalid command.")
+            print(Fore.RED, "Invalid command.")
 
 
 def reports_page():
     """Display all patient reports"""
     login_required()
+    patient_specific()
 
     # Page UI
     print()
@@ -518,29 +533,33 @@ def reports_page():
 
             items = list(reports[i].items())
 
-            print(f"Report #{i + 1}")
+            print(Fore.MAGENTA, f"Report #{i + 1}")
 
             for item in items:
                 print(f"{item[0]}: {item[1]}")
-            space(2)
+            print()
     else:
-        print("No reports")
+        print(Fore.RED, "No reports")
 
     # Wait for user command
     while True:
-        print(commands)
-
+        print()
         try:
-            get_input("Enter one of these commands: ")
-        except (InfoCommand, RedirectCommand):
+            get_input("Enter a program command (-help for commands): ")
+        except InfoCommand:
+            continue
+        except RedirectCommand:
             return
         else:
-            print("Invalid command.")
+            print(Fore.RED, "Invalid command.")
 
 
 def doctor_page():
-    
     """Doctors home page"""
+    login_required()
+    doctor_specific()
+
+    # Page UI
     print()
     page = f"Welcome back Dr. {session.name}!\n"
     page += "1- View your receipts\n"
@@ -554,10 +573,9 @@ def doctor_page():
             choice = int(get_input("Enter your choice: "))
             if 1 <= choice <= 4:
                 break
-        except ValueError or UnboundLocalError:
-            print()
-
-        except (InfoCommand, RedirectCommand):
+        except ValueError:
+            ...
+        except RedirectCommand:
             return
 
     if choice == 1:
@@ -569,7 +587,7 @@ def doctor_page():
     elif choice == 4:
         logout()
     else:
-        print("Invalid command.")
+        print(Fore.RED, "Invalid command.")
         doctor_page()
 
     return
@@ -577,6 +595,10 @@ def doctor_page():
 
 def unfinished_reports_page():
     """Display all unfinished reports for the doctor to finish (unfinished_reports.csv)"""
+    login_required()
+    doctor_specific()
+    
+    # Page UI
     print()
     page = "Unfinished reports\n"
     border(page)
@@ -585,7 +607,7 @@ def unfinished_reports_page():
     unfinished = []
 
     # Search for all rows for a doctor name
-    with open("unfinished_reports.csv", 'r') as file:
+    with open("datasets/unfinished_reports.csv", 'r') as file:
         reader = DictReader(file)
 
         for row in reader:
@@ -593,18 +615,19 @@ def unfinished_reports_page():
                 unfinished.append(row)
 
     if not len(unfinished):
-        print("All reports are finished")
+        print(Fore.GREEN, "All reports are finished!")
 
         # Wait for user command
         while True:
-            print(commands)
-
+            print()
             try:
-                get_input("Enter one of these commands: ")
-            except (InfoCommand, RedirectCommand):
+                get_input("Enter a program command (-help for commands): ")
+            except InfoCommand:
+                continue
+            except RedirectCommand:
                 return
             else:
-                print("Invalid command.")
+                print(Fore.RED, "Invalid command.")
 
     # Print doctor's unfinished reports
     for i in range(len(unfinished)):
@@ -612,13 +635,14 @@ def unfinished_reports_page():
 
         items = list(unfinished[i].items())
 
-        print(f"{i + 1}- ", end="")
+        print(Fore.MAGENTA, f"{i + 1}- ", end="")
         for item in items[0: -2]:
             print(f"{item[0]}: {item[1]}, ", end="")
         print(f"{items[-2][0]}: {items[-2][1]}")
 
     # Get chosen report number
     while True:
+        print()
         try:
             chosen_number = int(get_input("Report number to finish: "))
             notes = get_input("Notes: ")
@@ -666,12 +690,16 @@ def unfinished_reports_page():
             "patient_email", "doctor_name", "date", "turn", "notes"])
         writer.writerow(chosen_report)
 
-    print("Report finished.")
+    print(Fore.GREEN, "Report finished.")
     unfinished_reports_page()
 
 
 def finished_reports_page():
     """Display all finished reports for the doctor (finished_reports.csv)"""
+    login_required()
+    doctor_specific()
+    
+    # Page UI
     print()
     page = "Finished reports\n"
     border(page)
@@ -688,23 +716,24 @@ def finished_reports_page():
 
             items = list(finished[i].items())
 
-            print(f"{i + 1}- ", end="")
+            print(Fore.MAGENTA, f"{i + 1}- ", end="")
             for item in items[0: -1]:
                 print(f"{item[0]}: {item[1]}, ", end="")
             print(f"{items[-1][0]}: {items[-1][1]}")
     else:
-        print("No reports found.")
+        print(Fore.RED, "No reports found.")
 
     # Wait for user command
     while True:
-        print(commands)
+        print()
+        print(Fore.YELLOW, commands)
 
         try:
             get_input("Enter one of these commands: ")
-        except (InfoCommand, RedirectCommand):
+        except RedirectCommand:
             return
         else:
-            print("Invalid command.")
+            print(Fore.RED, "Invalid command.")
 
 
 """
@@ -718,6 +747,7 @@ def finished_reports_page():
 
 
 def clear_terminal():
+    """Clears the terminal for better UI"""
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
@@ -727,7 +757,7 @@ def space(n: int):
     ...
 
 
-def border(s: str, size: int = 100):
+def border(s: str, size: int = 128):
     """
     Prints a border around the text
     """
@@ -743,7 +773,7 @@ def border(s: str, size: int = 100):
         size = maxim
 
     # Print border according to the largest line length
-    print("+" + "-" * (size + 2) + "+")  # Border top
+    print(Fore.WHITE, "+" + "-" * (size + 2) + "+")  # Border top
 
     # Border middle
     for line in lines:
@@ -752,26 +782,28 @@ def border(s: str, size: int = 100):
 
         if line.startswith("!left "):
             line = line.removeprefix("!left ")
-            print("|" + " " + line + " " * floor(blank_spaces * 2 + 5) + "|")
+            print(Fore.WHITE, "|" + " " + line + " " * floor(blank_spaces * 2 + 5) + "|")
 
         elif line.startswith("!right "):
             line = line.removeprefix("!right ")
-            print("|" + " " * floor(blank_spaces * 2 + 6) + line + " " + "|")
+            print(Fore.WHITE, "|" + " " * floor(blank_spaces * 2 + 6) + line + " " + "|")
 
         else:
-            print("|" + " " * floor(blank_spaces) + line + " " * ceil(blank_spaces) + "|")
+            print(Fore.WHITE, "|" + " " * floor(blank_spaces) + line + " " * ceil(blank_spaces) + "|")
 
-    print("+" + "-" * (size + 2) + "+")  # Border bottom
+    print(Fore.WHITE, "+" + "-" * (size + 2) + "+")  # Border bottom
     print()
 
 
 def is_missing(email: str, password: str, confirm: str):
+    """If one parameter is missing, return False, else True"""
     if not email or not password or not confirm:
         return False
     return True
 
 
 def is_email(email: str):
+    """Validate email address"""
     try:
         emailinfo = validate_email(email, check_deliverability=True)
         email = emailinfo.normalized
@@ -799,6 +831,7 @@ def is_strong_password(password: str):
 
 
 def is_match(password: str, confirm: str):
+    """If passwords match"""
     if password != confirm:
         return False
     return True
@@ -806,17 +839,23 @@ def is_match(password: str, confirm: str):
 
 # check is a valid name
 def is_valid_name(name: str):
+    """
+    If name is valid
+    Rules:
+    1- First and last name separated by a space
+    2- Only alphabetical characters
+    """
     spaces = name.count(' ')  # count spaces
 
     if not name:
-        return "Name: "
+        return " " + Fore.CYAN + "Name: "
 
     if spaces != 1:
-        return "Format: First_Name Last_Name."
+        return " " + Fore.RED + "Format: First_Name Last_Name."
 
     if any(char.isdigit() for char in name) or \
             any(char in string.punctuation for char in name):
-        return "Invalid name, only alphabetical characters allowed."
+        return " " + Fore.RED + "Invalid name, only alphabetical characters allowed."
 
     return True
 
@@ -825,8 +864,10 @@ def is_command(s: str):
     """Checks if the user has entered a program command"""
     try:
         commands.run(s)
-    except (InfoCommand, RedirectCommand):
-        return True
+    except InfoCommand:
+        raise InfoCommand
+    except RedirectCommand:
+        raise RedirectCommand
     
     return False
 
@@ -834,10 +875,13 @@ def is_command(s: str):
 def get_name(s: str):
     """Inputs and validates user name"""
     while True:
-        inpt = input(s).strip()
+        inpt = input(Fore.BLUE + " " + s).strip()
         
-        if not inpt or is_command(inpt):
-           continue 
+        if not inpt:
+           continue
+        
+        if is_command(inpt):
+            return
 
         # Validate name
         result = is_valid_name(inpt)
@@ -851,61 +895,76 @@ def get_name(s: str):
 
 def get_email(s: str):
     """Inputs and validates user email"""
+    print(Fore.BLUE, end="")
     while True:
-        inpt = input(s).strip()
+        inpt = input(Fore.BLUE + " " + s).strip()
         
-        if not inpt or is_command(inpt):
+        if not inpt:
            continue
+
+        if is_command(inpt):
+            return
 
         # Validate email
         if is_email(inpt):
             break
         else:
-            print("Invalid email address.")
+            print(Fore.RED, "Invalid email address.")
 
+    print(Fore.WHITE, end="")
     return inpt
 
 
 def get_input(s: str):
+    """Get user input while checking for program commands"""
     while True:
-        inpt = input(s).strip()
+        inpt = input(Fore.BLUE + " " + s).strip()
         
-        if not inpt or not is_command(inpt):
+        try:
+            is_command(inpt)
+        except InfoCommand:
+            raise InfoCommand
+        except RedirectCommand:
+            raise RedirectCommand
+        
+        if input:
             break
 
+    print(Fore.WHITE, end="")
     return inpt
 
 
 def login_required():
     """Checks if the user is logged in to access certain pages"""
     if not session.email:
-        print("You must be logged in to access this page.")
+        print(Fore.RED, "You must be logged in to access this page.")
         login_page()
 
 
 def patient_specific():
     """Checks if the user is a patient to access the current page"""
-    if session.type != "patient":
-        print("This page is a patient specific page, please login with a patient account instead.")
+    if session.type != "patient" and session.type != "":
+        print(Fore.RED, "This page is a patient specific page, please login with a patient account instead.")
         login_page()
 
 
 def doctor_specific():
     """Checks if the user is a doctor to access the current page"""
     if session.type != "doctor":
-        print("This page is a doctor specific page, please login with a doctor account instead.")
+        print(Fore.RED, "This page is a doctor specific page, please login with a doctor account instead.")
         login_page()
 
 def logout():
     """Clears the session and returns to the login page"""
     session.clear()
-    print("Successfully logged out.")
+    print(Fore.GREEN, Style.BRIGHT + "Successfully logged out.")
     login_page()
 
 
 def exit_program():
     """Clears the terminal and exits the program"""
     clear_terminal()
+    print(Fore.WHITE)
     sys.exit()
 
 

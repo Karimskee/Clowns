@@ -1,21 +1,14 @@
 Plans:
 ----------
-- patient specific pages & doctor specific pages
-- code optimization and minimalizing
-- add logout and exit command
-- try -> return _page()
-- UI Improvement (CoLoRs & Spaces)
 
 
 Critical questions:
 -------------------
 
 
-Issues:
+Known issues:
 -------
-- review all InfoCommand exception statements
-- doctor viewing receipts/reports and types command -help, it exits the program
-- Fixing function call stack
+Fixing function call stack
 
 
 Snippets to add:
@@ -23,19 +16,11 @@ Snippets to add:
 
 
 Karimskee TT:
-----------
+-------------
 
 
 Basmala <3:
---------
-
-
-Input validation:
------------------
-Use .strip() for all inputs -> almost done
-For input that require numbers, validate if user inputs a number -> almost done
-Also for inputs that require a string (not sure of those exist) -> eh da
-If not valid, instantly request again
+-----------
 
 
 Fixing function call stack:
