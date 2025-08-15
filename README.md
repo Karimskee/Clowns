@@ -1,2 +1,2 @@
-# Clowns
+# Ducktors
 CS50P Final Project
