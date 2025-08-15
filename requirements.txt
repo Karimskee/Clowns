@@ -1,1 +1,1 @@
-email-validator
+email_validator

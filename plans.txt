@@ -1,21 +1,15 @@
 Plans:
 ----------
 - add alignment to border() (left, center, right)
-- add invalid command output
-- validate inputs
-- organize files
-- use windsurf function refactor
+- patient specific pages & doctor specific pages
 - code optimization and minimalizing
 - add logout and exit command
 - try -> return _page()
-- use classes
-- patient specific pages & doctor specific pages
-- doctors reports page
+- UI Improvement (CoLoRs & Spaces)
 
 
 Critical questions:
 -------------------
-- OOP where 🤔
 
 
 Issues:
@@ -26,111 +20,19 @@ Issues:
 
 Snippets to add:
 ----------------
-1- File read
-2- File write
 
 
-Karimskee:
+Karimskee TT:
 ----------
 
-Basmala:
+
+Basmala <3:
 --------
-- Input validation -> almost done
 
 
 Input validation:
 -----------------
 Use .strip() for all inputs -> almost done
-
 For input that require numbers, validate if user inputs a number -> almost done
-
 Also for inputs that require a string (not sure of those exist) -> eh da
-
-Names:
-    - First and last name only -> almost done
-    - Only alphabetical characters and a single space -> almost done
-
-Emails:
-    - Using the email-validator library (already implemented) -> done by karim
-    - If not valid, instantly request again
-
-Password:
-    - Use a library for strong password validation  -> almost done
-    - If not valid, instantly request again
-
-
-Classes:
---------
-- a class for commands
-    commands.doctors -> [-login, -home, -receipts, -unfinished, -finished, -logout, -exit]
-    commands.patients = [-help, -login, -register, -home, -schedule, -receipts, -reports, -logout, -exit]
-
-- a class for the session
-    session.name
-    session.email
-    session.type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-DONE - remove doctor notes from unfinished reports page
-DONE - -home after -register and -schedule dispalys "Karim Ghazy" instead of current session username
-DONE - logged in -> view receipts -> -schedule LOGIN REQUIRED
+If not valid, instantly request again
