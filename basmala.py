@@ -1,13 +1,7 @@
-from project import valid_name
-
+import pyfiglet
+from colorama import Fore, Style, init
+init(autoreset=True)
 
 # check name has first and last
-while True:
-    # input name
-    name = input("Name: ")
-
-    # check name
-    if valid_name(name):
-        break
-    else:
-        valid_name(name)
+banner = pyfiglet.figlet_format("Basmala",font="block")
+print(Fore.CYAN + Style.BRIGHT+ banner)

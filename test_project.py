@@ -1,92 +1,199 @@
-from project import check_email, check_missing, check_password, Valid_name
+from project import is_missing, is_email, is_match, is_valid_name,is_strong_password  
 
 
-def test_email():
+def test_is_email():
     # no email ("Invalid email address")
-    assert check_email("basmala.com") == None
-    assert check_email("basmala@gmail") == None
-    assert check_email("basmala@.com") == None
-    assert check_email("helloworld") == None
-    assert check_email("basmala@") == None
-    assert check_email("basmala@com") == None
-    assert check_email("basmala@gm.com") == None
+    assert is_email("basmala.com") == False
+    assert is_email("basmala@gmail") == False
+    assert is_email("basmala@.com") == False
+    assert is_email("helloworld") == False
+    assert is_email("basmala@") == False
+    assert is_email("basmala@com") == False
 
     # valid emails
-    assert check_email("basmala@gmail.com") == "basmala@gmail.com"
-    assert check_email("rahmatia@gmail.com") == "rahmatia@gmail.com"
-    assert check_email("hudamr@gmail.com") == "hudamr@gmail.com"
-    assert check_email("harrypoter@gmail.com") == "harrypoter@gmail.com"
-    assert check_email("karimghazy@gmail.com") == "karimghazy@gmail.com"
-    assert check_email("saman@gmail.com") == "saman@gmail.com"
+    assert is_email("basmala@gmail.com") == True
+    assert is_email("rahmatia@gmail.com") == True
+    assert is_email("hudamr@gmail.com") == True
+    assert is_email("harrypoter@gmail.com") == True
+    assert is_email("karimghazy@gmail.com") == True
+    assert is_email("saman@gmail.com") == True
 
 
-def valid_name():
+def test_is_valid_name():
 
     # name should not be empty
-    assert Valid_name("") == "Name: "
+    assert is_valid_name("") == "Name: "
 
-    #name should have first and last name
-    assert Valid_name("basmala") == "Format: First_Name Last_Name."
-    assert Valid_name("basmalarahma") == "Format: First_Name Last_Name."
-    assert Valid_name("CS50") == "Format: First_Name Last_Name."
-    assert Valid_name("Basmala Rahma 123") == "Format: First_Name Last_Name."
-    assert Valid_name("BasmalaRahma@") == "Format: First_Name Last_Name."
-    assert Valid_name("a b c d e") == "Format: First_Name Last_Name."
+    # name should have first and last name
+    assert is_valid_name("basmala") == "Format: First_Name Last_Name."
+    assert is_valid_name("basmalarahma") == "Format: First_Name Last_Name."
+    assert is_valid_name("CS50") == "Format: First_Name Last_Name."
+    assert is_valid_name("Basmala Rahma 123") == "Format: First_Name Last_Name."
+    assert is_valid_name("BasmalaRahma@") == "Format: First_Name Last_Name."
+    assert is_valid_name("a b c d e") == "Format: First_Name Last_Name."
 
-    #name should have only alphabetical characters
-    assert Valid_name("#Basmala Rahma") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala Rahma@") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala Rahma123") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala 444!") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala Rahma#") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala Rahma$") == "Invalid name, only alphabetical characters allowed."
-    assert Valid_name("Basmala Rahma%") == "Invalid name, only alphabetical characters allowed."
-    
-    #Valid names
-    assert Valid_name("Rahma Atia") == True
-    assert Valid_name("Basmala Moahamed") == True
-    assert Valid_name("Huda Amr") == True
-    assert Valid_name("Karim Ghazy") == True
-    assert Valid_name("Mohamed Ali") == True
-    assert Valid_name("Sara Omar") == True
-    
+    # name should have only alphabetical characters
+    assert is_valid_name(
+        "#Basmala Rahma") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala Rahma@") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala Rahma123") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala 444!") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala Rahma#") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala Rahma$") == "Invalid name, only alphabetical characters allowed."
+    assert is_valid_name(
+        "Basmala Rahma%") == "Invalid name, only alphabetical characters allowed."
+
+    # Valid names
+    assert is_valid_name("Rahma Atia") == True
+    assert is_valid_name("Basmala Moahamed") == True
+    assert is_valid_name("Huda Amr") == True
+    assert is_valid_name("Karim Ghazy") == True
+    assert is_valid_name("Mohamed Ali") == True
+    assert is_valid_name("Sara Omar") == True
 
 
-def test_missing():
-    # email, and password are missing
-    assert check_missing("", "", "") == False
+def test_is_missing():
+    # email, passwors and confirmed password are missing
+    assert is_missing("", "", "") == False
 
-    # username is missing
-    assert check_missing("basmala@gmail.com", "", "basmala") == False
+    # password is missing
+    assert is_missing("basmala@gmail.com", "", "basmala") == False
+    assert is_missing("rahmatia@gmail.com", "", "rahmatia") == False
+    assert is_missing("hudamr@gmail.com", "", "hudamr") == False
+    assert is_missing("harrypoter@gmail.com", "", "harrypoter") == False
+    assert is_missing("karimghazy@gmail.com", "", "karimghazy") == False
 
     # email is missing
-    assert check_missing("", "basmala", "basmala") == False
-    
-    # password is missing
-    assert check_missing("basmala@gmail.com", "basmala", "") == False
-    
+    assert is_missing("", "basmala", "basmala") == False
+    assert is_missing("", "rahmatia", "rahmatia") == False
+    assert is_missing("", "hudamr", "hudamr") == False
+    assert is_missing("", "harrypoter", "harrypoter") == False
+    assert is_missing("", "karimghazy", "karimghazy") == False
 
-    assert check_missing("basmala@gmil.com", "basmala", "basmala") == True
+    # confirmed password is missing
+    assert is_missing("basmala@gmail.com", "basmala", "") == False
+    assert is_missing("rahmatia@gmail.com", "rahmatia", "") == False
+    assert is_missing("hudamr@gmail.com", "hudamr", "") == False
+    assert is_missing("harrypoter@gmail.com", "harrypoter", "") == False
+    assert is_missing("karimghazy@gmail.com", "karimghazy", "") == False
+
+    # all inputs are valid
+    assert is_missing("basmala@gmil.com", "Basmala+1", "Basmala+1") == True
+    assert is_missing("rahmatia@gmail.com",
+                         "#1Rahmatia", "#1Rahmatia") == True
+    assert is_missing("hudamr@gmail.com", "@Hudamr23", "@Hudamr23") == True
+    assert is_missing("harrypoter@gmail.com",
+                         "Harrypoter!1", "Harrypoter!1") == True
+    assert is_missing("karimghazy@gmail.com",
+                         "karimGhazy#9", "karimGhazy#9") == True
 
 
-def test_password():
+def test_is_match():
     # repeat password doesn't match
-    assert check_password("Basmala", "Rahma") == False
-    assert check_password("Basmala_123", "Rahma_456") == False
-    assert check_password("Huda_789", "Karim_101") == False
-    assert check_password("Mohamed@112", "Ali#123") == False
-    assert check_password("Sara$456", "#Omar%789") == False
-    assert check_password("Basmala", "Basmala_123") == False
-    assert check_password("Rahma", "Rahma_456") == False
-    assert check_password("Huda", "Huda_789") == False
+    assert is_match("Basmala", "Rahma") == False
+    assert is_match("Basmala_123", "Rahma_456") == False
+    assert is_match("Huda_789", "Karim_101") == False
+    assert is_match("Mohamed@112", "Ali#123") == False
+    assert is_match("Sara$456", "#Omar%789") == False
+    assert is_match("Basmala", "Basmala_123") == False
+    assert is_match("Rahma", "Rahma_456") == False
+    assert is_match("Huda", "Huda_789") == False
 
     # repeat password matches
-    assert check_password("Basmala_123", "Basmala_123") == True
-    assert check_password("Rahma_456", "Rahma_456") == True
-    assert check_password("Huda_789", "Huda_789") == True
-    assert check_password("Karim_101", "Karim_101") == True
-    assert check_password("Mohamed@112", "Mohamed@112") == True
-    assert check_password("Ali#123", "Ali#123") == True 
-    assert check_password("Sara$456", "Sara$456") == True
-    assert check_password("#Omar%789", "#Omar%789") == True
+    assert is_match("Basmala_123", "Basmala_123") == True
+    assert is_match("Rahma_456", "Rahma_456") == True
+    assert is_match("Huda_789", "Huda_789") == True
+    assert is_match("Karim_101", "Karim_101") == True
+    assert is_match("Mohamed@112", "Mohamed@112") == True
+    assert is_match("Ali#123", "Ali#123") == True
+    assert is_match("Sara$456", "Sara$456") == True
+    assert is_match("#Omar%789", "#Omar%789") == True
 
+
+def test_is_strong_password():
+    # weak password
+    assert is_strong_password("") == False
+    assert is_strong_password("Basmla") == False
+    assert is_strong_password("Rahmatia_") == False
+    assert is_strong_password("rahma_1") == False
+    assert is_strong_password("Basmala1") == False
+    assert is_strong_password("Basmala#") == False
+    assert is_strong_password("_basmala1") == False
+
+
+    # strong password
+    assert is_strong_password("Basmala1_") == True
+    assert is_strong_password("Bismillah+1") == True
+    assert is_strong_password("Basmala#1") == True 
+    assert is_strong_password("#Rahmaaaaa0") == True
+    assert is_strong_password("#Rah00miii") == True
+
+
+# def is_missing(email: str, password: str, confirm: str):
+#     if not email or not password or not confirm:
+#         return False
+#     return True
+
+
+# def is_email(email: str):
+#     try:
+#         emailinfo = validate_email(email, check_deliverability=True)
+#         email = emailinfo.normalized
+#     except EmailNotValidError:
+#         return False
+#     return True
+
+
+# # Check password
+# def is_match(password: str):
+#     """Checks if the password is strong enough"""
+#     if len(password) < 8:
+#         return False
+#     if not any(char.isdigit() for char in password):
+#         return False
+#     if not any(char.isupper() for char in password):
+#         return False
+#     if not any(char.islower() for char in password):
+#         return False
+#     if not any(char in string.punctuation for char in password):
+#         return False
+
+#     return True
+
+
+# def is_match(password: str, confirm: str):
+#     if password != confirm:
+#         return False
+#     return True
+
+
+# # check is a valid name
+# def is_valid_name(name: str):
+#     spaces = name.count(' ')  # count spaces
+
+#     if not name:
+#         return "Name: "
+
+#     if spaces != 1:
+#         return "Format: First_Name Last_Name."
+
+#     if any(char.isdigit() for char in name) or \
+#             any(char in string.punctuation for char in name):
+#         return "Invalid name, only alphabetical characters allowed."
+
+#     return True
+
+
+# def is_command(s: str):
+#     """Checks if the user has entered a program command"""
+#     try:
+#         commands.run(s)
+#     except (InfoCommand, RedirectCommand):
+#         return True
+    
+#     return False

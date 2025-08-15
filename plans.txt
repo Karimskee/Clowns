@@ -1,6 +1,5 @@
 Plans:
 ----------
-- add alignment to border() (left, center, right)
 - patient specific pages & doctor specific pages
 - code optimization and minimalizing
 - add logout and exit command
@@ -16,6 +15,7 @@ Issues:
 -------
 - review all InfoCommand exception statements
 - doctor viewing receipts/reports and types command -help, it exits the program
+- Fixing function call stack
 
 
 Snippets to add:
@@ -36,3 +36,28 @@ Use .strip() for all inputs -> almost done
 For input that require numbers, validate if user inputs a number -> almost done
 Also for inputs that require a string (not sure of those exist) -> eh da
 If not valid, instantly request again
+
+
+Fixing function call stack:
+----------------------
+    flag = "login"
+
+    transition():
+        if flag = "login":
+            login_page
+        elif flag = "register":
+            register_page
+        elif flag = "home":
+            home_page
+
+
+    main():
+        while True:
+            transition()
+
+
+    login_page():
+        do login logic
+
+        flag = "home"
+        return

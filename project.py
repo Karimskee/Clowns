@@ -15,6 +15,7 @@ from math import ceil, floor
 import os
 import sys
 import string
+from colorama import Fore, Style, init
 
 
 # If user typed an informative command (e.g. -help)
@@ -130,87 +131,14 @@ def main():
 """
 
 
-def register_page():
-    """Patient registration page"""
-    # Loops till the user successfully registers their account
-    while True:
-        info = [] # [name, email, password, confirm]
-
-        # Ask for user information
-        print()
-        page = "Register your account\n"
-        page += "---------------------\n"
-        page += "For the list of the program commands, type -help\n"
-        page += "If you are a doctor or already have an account, type -login"
-        border(page)
-
-        # Get user input
-        # Input name
-        info.append(get_name("Name: "))
-
-        # Input email
-        info.append(get_email("Email: "))
-
-        # Input password while validating its strength
-        while True:
-            # Input password
-            password = get_input("Password: ")
-
-            # Check passwords strength
-            if not check_strong_password(password):
-                print(
-                    "please enter at least 8 letters, one digit, a sympol, upper and lower character")
-            else:
-                break
-        info.append(password)
-
-        # Input password confirmation
-        info.append(get_input("Repeat pasword: "))
-
-        # Extract user information
-        name, email, password, confirm = info
-
-        # Validate passwords match
-        if not check_password(password, confirm):
-            print("Passwords doesn't match.")
-            continue
-
-        # Input validation went well
-        break
-
-    # If email is already registered
-    with open("datasets/users_login.csv", "r") as users_db:
-        reader = DictReader(users_db)
-
-        for row in reader:
-            if row["email"] == email:
-                print("Email already exists, consider logging in instead")
-                login_page()
-                return
-
-    # Input data into the patients database
-    with open("datasets/users_login.csv", "a", newline="") as users_db:
-        writer = DictWriter(users_db, fieldnames=[
-                            "name", "email", "password", "type"])
-        writer.writerow(
-            {"name": name, "email": email, "password": password, "type": "patient"})
-
-    # Registration successful
-    print("Account has been registered successfully!")
-    session.email = email
-    session.name = name
-    session.type = "patient"
-    home_page()
-
-
 def login_page():
     """Patient/doctor login page"""
     # Page UI
     print()
-    page = "Login to your account\n"
+    page =  "Log in to your account\n"
     page += "---------------------\n"
-    page += "If you don't have an account, type -register\n"
-    page += "For the list of the program commands, type -help"
+    page += "For the list of the program commands, type -help\n"
+    page += "If you don't have an account, type -register"
     border(page)
 
     # Get user login information
@@ -246,6 +174,81 @@ def login_page():
         return
 
 
+def register_page():
+    """Patient registration page"""
+    patient_specific()
+    
+    # Loops till the user successfully registers their account
+    while True:
+        info = [] # [name, email, password, confirm]
+
+        # Ask for user information
+        print()
+        page = "Register your account\n"
+        page += "---------------------\n"
+        page += "For the list of the program commands, type -help\n"
+        page += "If you are a doctor or already have an account, type -login"
+        border(page)
+
+        # Get user input
+        # Input name
+        info.append(get_name("Name: "))
+
+        # Input email
+        info.append(get_email("Email: "))
+
+        # Input password while validating its strength
+        while True:
+            # Input password
+            password = get_input("Password: ")
+
+            # Check passwords strength
+            if not is_strong_password(password):
+                print(
+                    "please enter at least 8 letters, one digit, a sympol, upper and lower character")
+            else:
+                break
+        info.append(password)
+
+        # Input password confirmation
+        info.append(get_input("Repeat pasword: "))
+
+        # Extract user information
+        name, email, password, confirm = info
+
+        # Validate passwords match
+        if not is_match(password, confirm):
+            print("Passwords doesn't match.")
+            continue
+
+        # Input validation went well
+        break
+
+    # If email is already registered
+    with open("datasets/users_login.csv", "r") as users_db:
+        reader = DictReader(users_db)
+
+        for row in reader:
+            if row["email"] == email:
+                print("Email already exists, consider logging in instead")
+                login_page()
+                return
+
+    # Input data into the patients database
+    with open("datasets/users_login.csv", "a", newline="") as users_db:
+        writer = DictWriter(users_db, fieldnames=[
+                            "name", "email", "password", "type"])
+        writer.writerow(
+            {"name": name, "email": email, "password": password, "type": "patient"})
+
+    # Registration successful
+    print("Account has been registered successfully!")
+    session.email = email
+    session.name = name
+    session.type = "patient"
+    home_page()
+
+
 def home_page():
     """Hospital home page"""
     login_required()
@@ -260,19 +263,14 @@ def home_page():
     page += "!left 3- View your reports\n"
     page += "!left 4- Logout\n"
     page += "!left 5- Close the program"
-
     border(page)
+
     while True:
         try:
             choice = int(get_input("Enter your choice: "))
             break
-        except ValueError or UnboundLocalError:
-            print()
-        except InfoCommand:
-            home_page()
-            return
-        except RedirectCommand:
-            return
+        except:
+            ...
 
     if choice == 1:
         schedule_page()
@@ -470,7 +468,7 @@ def receipts_page():
 
     # Wait for user command
     while True:
-        help()
+        print(commands)
 
         try:
             get_input("Enter one of these commands: ")
@@ -522,15 +520,15 @@ def reports_page():
 
             print(f"Report #{i + 1}")
 
-            for item in items[0: -1]:
+            for item in items:
                 print(f"{item[0]}: {item[1]}")
-            print()
+            space(2)
     else:
         print("No reports")
 
     # Wait for user command
     while True:
-        help()
+        print(commands)
 
         try:
             get_input("Enter one of these commands: ")
@@ -599,7 +597,7 @@ def unfinished_reports_page():
 
         # Wait for user command
         while True:
-            help()
+            print(commands)
 
             try:
                 get_input("Enter one of these commands: ")
@@ -699,7 +697,7 @@ def finished_reports_page():
 
     # Wait for user command
     while True:
-        help()
+        print(commands)
 
         try:
             get_input("Enter one of these commands: ")
@@ -767,14 +765,7 @@ def border(s: str, size: int = 100):
     print()
 
 
-# def check_name(name: str):
-#     """Validates user name"""
-#     if not name:
-#         return "User"  # name is optional, default is "User"
-#     return name
-
-
-def check_missing(email: str, password: str, confirm: str):
+def is_missing(email: str, password: str, confirm: str):
     if not email or not password or not confirm:
         return False
     return True
@@ -791,7 +782,7 @@ def is_email(email: str):
 
 
 # Check password
-def check_strong_password(password: str):
+def is_strong_password(password: str):
     """Checks if the password is strong enough"""
     if len(password) < 8:
         return False
@@ -807,14 +798,14 @@ def check_strong_password(password: str):
     return True
 
 
-def check_password(password: str, confirm: str):
+def is_match(password: str, confirm: str):
     if password != confirm:
         return False
     return True
 
 
 # check is a valid name
-def valid_name(name: str):
+def is_valid_name(name: str):
     spaces = name.count(' ')  # count spaces
 
     if not name:
@@ -849,7 +840,7 @@ def get_name(s: str):
            continue 
 
         # Validate name
-        result = valid_name(inpt)
+        result = is_valid_name(inpt)
         if result == True:
             break
         else:
@@ -891,6 +882,19 @@ def login_required():
         print("You must be logged in to access this page.")
         login_page()
 
+
+def patient_specific():
+    """Checks if the user is a patient to access the current page"""
+    if session.type != "patient":
+        print("This page is a patient specific page, please login with a patient account instead.")
+        login_page()
+
+
+def doctor_specific():
+    """Checks if the user is a doctor to access the current page"""
+    if session.type != "doctor":
+        print("This page is a doctor specific page, please login with a doctor account instead.")
+        login_page()
 
 def logout():
     """Clears the session and returns to the login page"""
