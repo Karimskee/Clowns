@@ -1,20 +1,19 @@
 # <ins>Ducktors</ins> 🐥
 > _A hospital terminal program for CS50 Python Final Project_
 
----
-#### <ins>Functionalities</ins> 💡
+### <ins>Functionalities</ins> 💡
 
 patients can schedule appointments, view their records and doctor reports.  
 Doctors can write reports, view patients records and reports.
 
 ---
-#### <ins>Team</ins> 👥
+### <ins>Team</ins> 👥
 
 ⬥ [@Karim Ghazy](https://github.com/Karimskee)  
 ⬥ [@Basmala Mohammed](https://github.com/basmalaaaaaaa)
 
 ---
-#### <ins>Associations</ins> 🔗
+### <ins>Associations</ins> 🔗
 
 ⬥ **Course provider:** [Harvard University](https://cs50.harvard.edu/python/)  
 ⬥ **Tutors:**  
@@ -22,14 +21,14 @@ Doctors can write reports, view patients records and reports.
 &nbsp;&nbsp;&nbsp;&nbsp;⬥ [@Carter Zenke](https://github.com/CarterZenke)
 
 ---
-#### <ins>Frameworks</ins> 🧰
+### <ins>Frameworks</ins> 🧰
 
 ⬥ **colorama:** For terminal coloring  
 ⬥ **email_validator:** For email format validation  
 ⬥ **pyfiglet:** For python str to ASCII Art conversion
 
 ---
-#### <ins>Detailed Description</ins> 📝
+### <ins>Detailed Description</ins> 📝
 
 ##### Structure
 ```
@@ -107,16 +106,16 @@ Ducktors/
 ⬥ **exit_program:** Exits the program
 
 ---
-#### A word of appreciation
+### A word of appreciation
 
 Words can not describe how much of a gratitude I have to you CS50, such great content 
 
 
 ---
-#### <ins>Q&A</ins> 🤔
+### <ins>Q&A</ins> 🤔
 ⬥ **How to register as a doctor?:** You can **not** directly register a doctor account, only manually via the database, as you would imagine in a real hospital.  
 ⬥ **What's with the schedules.csv?:** It is not accessible inside the program but rather through the file itself, neither doctors nor patients are meant to access that file but rather you, developer!  
 ⬥ **Quack?:** Quack Quack Quack Quack
 
 ---
-#### <ins>Demo video</ins> 🎥 WIP
+### <ins>Demo video</ins> 🎥 WIP
