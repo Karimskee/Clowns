@@ -1,5 +1,6 @@
 # Ducktors 🐥
 > _A hospital terminal program for CS50 Python Final Project_
+![A rubber duck with surgery hat](Ducktor.png)
 
 ---
 ### Functionalities 💡
@@ -10,16 +11,16 @@ Doctors can write reports, view their patients' receipts and reports.
 ---
 ### Team 👥
 
-⬥ [@Karim Ghazy](https://github.com/Karimskee)  
-⬥ [@Basmala Mohammed](https://github.com/basmalaaaaaaa)
+⬥ [@Karim Ghazy](https://github.com/Karimskee) 😼  
+⬥ [@Basmala Mohammed](https://github.com/basmalaaaaaaa) 🍀
 
 ---
 ### Associations 🔗
 
 ⬥ **Course provider:** [Harvard University](https://cs50.harvard.edu/python/)  
 ⬥ **Tutors:**  
-&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@David Malin](https://github.com/dmalan)  
-&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@Carter Zenke](https://github.com/CarterZenke)
+&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@David Malin](https://github.com/dmalan)❤️  
+&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@Carter Zenke](https://github.com/CarterZenke)❤️
 
 ---
 ### Frameworks 🧰
@@ -44,6 +45,7 @@ Ducktors/
 │   ├── unfinished_reports.csv
 │   └── users_login.csv
 ├── .gitattributes
+├── Ducktor.png
 ├── plans.txt
 ├── project.py
 ├── README.md
@@ -59,6 +61,7 @@ Ducktors/
 ⬥ **schedules.csv:** Stores all schedules details.  
 ⬥ **unfinished_reports.csv:** Stores all reports without doctor notes.  
 ⬥ **users_login.csv:** Stores users login information  
+⬥ **Ducktor.png:** Project icon.  
 ⬥ **.gitattributes:** Necessary for git.  
 ⬥ **plans.txt:** Any future plans, known issues, individual tasks go here.  
 ⬥ **project.py:** The main python codes and functions  
