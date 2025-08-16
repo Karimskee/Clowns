@@ -1,11 +1,11 @@
 """
 Ducktors:
 ---------
-A medical management system for patients and doctors.
+A hospital terminal program for CS50 Python Final Project
 
 Functionalities:
 --------------------
-For patients: schedule appointments, view self records and doctor reports.
+For patients: schedule appointments, view self records and doctor reports
 For doctors: write reports, view patients records
 """
 from colorama import Fore, Style
