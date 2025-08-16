@@ -20,7 +20,7 @@ Doctors can write reports, view their patients' receipts and reports.
 
 ⬥ **Course provider:** [Harvard University](https://cs50.harvard.edu/python/)  
 ⬥ **Tutors:**  
-&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@David Malin](https://github.com/dmalan)❤️  
+&nbsp;&nbsp;&nbsp;&nbsp;⬥ [@David J. Malin](https://github.com/dmalan)❤️  
 &nbsp;&nbsp;&nbsp;&nbsp;⬥ [@Carter Zenke](https://github.com/CarterZenke)❤️
 
 ---
@@ -111,9 +111,10 @@ Ducktors/
 ⬥ **exit_program:** Exits the program
 
 ---
-### A word of appreciation
+### A word of appreciation 🌹
 
-Words can not describe how much of a gratitude I have to you CS50, such great content!
+Words can not express the gratitude I feel toward CS50, from the course content, learning path and structure, to the problem sets and the final project, it was simply incomparable with any learning experience I've had!  
+Many thanks to the [@CS50](https://github.com/cs50) team and special thanks to Dr. [@David J. Malin](https://github.com/dmalan) for everything you've done to deliver the course in such an amazing way!
 
 
 ---
