@@ -4,8 +4,8 @@
 ---
 ### Functionalities 💡
 
-patients can schedule appointments, view their records and doctor reports.  
-Doctors can write reports, view patients records and reports.
+patients can schedule appointments, view their receipts and reports.  
+Doctors can write reports, view their patients' receipts and reports.
 
 ---
 ### Team 👥
