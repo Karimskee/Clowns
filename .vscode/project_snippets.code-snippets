@@ -1,5 +1,5 @@
 {
-    // Place your Clowns workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+    // Place your Ducktors workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
     // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
     // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
     // used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
@@ -15,23 +15,6 @@
     //     ],
     //     "description": "Log output to console"
     // }
-
-    "Take input": {
-        "scope": "python",
-        "prefix": ["input", "take input"],
-        "body": [
-"try:",
-"    take_input(\"$0: \")",
-"except InfoCommand:",
-"    return",
-"except RedirectCommand:",
-"    return",
-"else:",
-"    ...",
-        ],
-        "description": "Takes user input and checks for program commands"
-    },
-
     "CSV read": {
         "scope": "python",
         "prefix": "csv read",

@@ -86,9 +86,9 @@ class Commands(Session):
                 register_page()
             elif command == "-home":
                 if session.type == "patient":
-                    home_page()
+                    patients_page()
                 else:
-                    doctor_page()
+                    doctors_page()
             elif command == "-schedule":
                 schedule_page()
             elif command == "-receipts":
@@ -134,11 +134,6 @@ def main():
 ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝
 """
 
-def ducktors():
-    print()
-    ducktors = "Ducktors Hospital"
-    print(Fore.YELLOW + Style.BRIGHT + pyfiglet.figlet_format(ducktors, width=200, font="ansi_shadow", justify="left"), end="")
-
 
 def login_page():
     """Patient/doctor login page"""
@@ -168,9 +163,9 @@ def login_page():
                     print(Fore.GREEN, "Successfully logged in.")
 
                     if session.type == "patient":
-                        home_page()
+                        patients_page()
                     else:
-                        doctor_page()
+                        doctors_page()
 
                     return
                 else:
@@ -201,7 +196,7 @@ def register_page():
 
         # Get user input
         # Input name
-        info.append(get_name("Name: "))
+        info.append(get_name("Name (First & Last): "))
 
         # Input email
         info.append(get_email("Email: "))
@@ -255,11 +250,11 @@ def register_page():
     session.email = email
     session.name = name
     session.type = "patient"
-    home_page()
+    patients_page()
 
 
-def home_page():
-    """Hospital home page"""
+def patients_page():
+    """Patients home page"""
     login_required()
     patient_specific()
 
@@ -299,7 +294,7 @@ def home_page():
         sys.exit()
     else:
         print(Fore.RED, "Invalid choice.")
-        home_page()
+        patients_page()
 
     return
 
@@ -554,7 +549,7 @@ def reports_page():
             print(Fore.RED, "Invalid command.")
 
 
-def doctor_page():
+def doctors_page():
     """Doctors home page"""
     login_required()
     doctor_specific()
@@ -588,7 +583,7 @@ def doctor_page():
         logout()
     else:
         print(Fore.RED, "Invalid command.")
-        doctor_page()
+        doctors_page()
 
     return
 
@@ -746,6 +741,13 @@ def finished_reports_page():
 """
 
 
+def ducktors():
+    """Print ASCII Art of Ducktors Hospital"""
+    print()
+    ducktors = "Ducktors Hospital"
+    print(Fore.YELLOW + Style.BRIGHT + pyfiglet.figlet_format(ducktors, width=200, font="ansi_shadow", justify="left"), end="")
+
+
 def clear_terminal():
     """Clears the terminal for better UI"""
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -795,13 +797,6 @@ def border(s: str, size: int = 128):
     print()
 
 
-def is_missing(email: str, password: str, confirm: str):
-    """If one parameter is missing, return False, else True"""
-    if not email or not password or not confirm:
-        return False
-    return True
-
-
 def is_email(email: str):
     """Validate email address"""
     try:
@@ -848,7 +843,7 @@ def is_valid_name(name: str):
     spaces = name.count(' ')  # count spaces
 
     if not name:
-        return " " + Fore.CYAN + "Name: "
+        return " " + Fore.CYAN + "Name (First & Last): "
 
     if spaces != 1:
         return " " + Fore.RED + "Format: First_Name Last_Name."

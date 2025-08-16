@@ -2,17 +2,9 @@ Plans:
 ----------
 
 
-Critical questions:
--------------------
-
-
 Known issues:
 -------
 Fixing function call stack
-
-
-Snippets to add:
-----------------
 
 
 Karimskee TT:
