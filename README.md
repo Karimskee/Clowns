@@ -1,6 +1,7 @@
 # Ducktors 🐥
 > _A hospital terminal program for CS50 Python Final Project_
 
+---
 ### Functionalities 💡
 
 patients can schedule appointments, view their records and doctor reports.  
