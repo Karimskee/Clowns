@@ -26,6 +26,7 @@ Doctors can write reports, view their patients' receipts and reports.
 ---
 ### Frameworks 🧰
 
+⬥ **Live Share:** For session sharing and easier team collaboration  
 ⬥ **colorama:** For terminal coloring  
 ⬥ **email_validator:** For email format validation  
 ⬥ **pyfiglet:** For python str to ASCII Art conversion
