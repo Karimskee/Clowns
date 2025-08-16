@@ -1,6 +1,7 @@
-# Ducktors 🐥
+# Ducktors <image src="Ducktor.png" width="40" valign="middle">
 > _A hospital terminal program for CS50 Python Final Project_
-![A rubber duck with surgery hat](Ducktor.png)
+<!-- ![A rubber duck with surgery hat](Ducktor.png) -->
+
 
 ---
 ### Functionalities 💡
