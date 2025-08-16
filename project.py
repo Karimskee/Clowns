@@ -348,7 +348,6 @@ def schedule_page():
         reader = DictReader(doctors_db)
         for row in reader:
             if row["specialization"] == specs[spec_num - 1]:
-                row.pop("turn")
                 doctors.append(row)
 
     # Print the available doctors
