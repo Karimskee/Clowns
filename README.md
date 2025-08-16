@@ -107,6 +107,12 @@ Ducktors/
 ⬥ **exit_program:** Exits the program
 
 ---
+#### A word of appreciation
+
+Words can not describe how much of a gratitude I have to you CS50, such great content 
+
+
+---
 #### <ins>Q&A</ins> 🤔
 ⬥ **How to register as a doctor?:** You can **not** directly register a doctor account, only manually via the database, as you would imagine in a real hospital.  
 ⬥ **What's with the schedules.csv?:** It is not accessible inside the program but rather through the file itself, neither doctors nor patients are meant to access that file but rather you, developer!  
