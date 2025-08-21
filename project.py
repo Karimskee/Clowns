@@ -29,6 +29,11 @@ class RedirectCommand(Exception):
     pass
 
 
+# If user typed an invalid command (e.g. -password)
+class InvalidCommand(Exception):
+    pass
+
+
 # As long as the user is logged in, their session memorises their name, email and type
 class Session:
     def __init__(self):
@@ -59,10 +64,10 @@ class Commands(Session):
     def __str__(self):
         output = "\n Commands:\n "
 
-        if session.type == "patient":
-            output += ", ".join(self.patients)
-        else:
+        if session.type == "doctor":
             output += ", ".join(self.doctors)
+        else:
+            output += ", ".join(self.patients)
 
         output += "\n"
         return output
@@ -105,7 +110,7 @@ class Commands(Session):
                 finished_reports_page()
             else:
                 print(Fore.RED, "Invalid command.")
-                return False
+                raise InvalidCommand
             
         # Not a command at all
         else:
@@ -139,7 +144,7 @@ def login_page():
     """Patient/doctor login page"""
     # Page UI
     ducktors()
-    page =  "Log in to your account\n"
+    page =  "Login to your account\n"
     page += "---------------------\n"
     page += "No account? -register\n"
     page += "For program commands: -help"
@@ -188,10 +193,10 @@ def register_page():
 
         # Ask for user information
         print()
-        page = "Register your account\n"
-        page += "---------------------\n"
-        page += "For program commands: -help\n"
-        page += "Have an account? -login"
+        page =  "Register an account\n"
+        page += "-------------------\n"
+        page += "Have an account? -login\n"
+        page += "For program commands: -help"
         border(page)
 
         # Get user input
@@ -260,7 +265,7 @@ def patients_page():
 
     # Page UI
     print()
-    page = f"Your orders, {session.name}?\n"
+    page =  f"Your orders, {session.name}?\n"
     page +=  "--------------" + "-" * len(session.name) + "\n"
     page += "!left 1- Schedule an appointment\n"
     page += "!left 2- View your receipts\n"
@@ -272,11 +277,12 @@ def patients_page():
     while True:
         try:
             choice = int(get_input("Enter your choice: "))
-            break
-        except ValueError:
-            ...
-        except RedirectCommand:
-            return
+            if 1 <= choice <= 5:
+                break
+            else:
+                print(Fore.RED, "Invalid choice.")
+        except ValueError or UnboundLocalError:
+            print(Fore.RED, "Invalid choice.")
 
     if choice == 1:
         schedule_page()
@@ -290,8 +296,7 @@ def patients_page():
     elif choice == 4:
         logout()
     elif choice == 5:
-        clear_terminal()
-        sys.exit()
+        exit_program()
     else:
         print(Fore.RED, "Invalid choice.")
         patients_page()
@@ -324,21 +329,25 @@ def schedule_page():
     for i in range(len(specs)):
         page += f"\n!left {i + 1}- {specs[i]}"
 
+    # Handle no specializations case
+    if not len(specs):
+        print(Fore.RED, "No available specializations found.")
+        patients_page()
+        return
+
     # Print the page UI
     border(page)
 
     # Get desired specialization number from the user
     while True:
         try:
-            spec_num = int(get_input("Enter the specialization number: "))
-            break
+            choice = int(get_input("Enter the specialization number: "))
+            if 1 <= choice <= len(specs):
+                break
+            else:
+                print(Fore.RED, "Invalid choice.")
         except ValueError or UnboundLocalError:
-            print()
-        except InfoCommand:
-            schedule_page()
-            return
-        except RedirectCommand:
-            return
+            print(Fore.RED, "Invalid choice.")
 
     # List of doctors with their info in the desired specialization
     doctors = []
@@ -347,8 +356,14 @@ def schedule_page():
     with open("datasets/doctors_info.csv", "r") as doctors_db:
         reader = DictReader(doctors_db)
         for row in reader:
-            if row["specialization"] == specs[spec_num - 1]:
+            if row["specialization"] == specs[choice - 1]:
                 doctors.append(row)
+
+    # Handle no doctors case
+    if not len(doctors):
+        print(Fore.RED, "No available doctors found.")
+        patients_page()
+        return
 
     # Print the available doctors
     for i in range(len(doctors)):
@@ -356,20 +371,17 @@ def schedule_page():
 
     # Get desired doctor number from the user
     while True:
-        print()
         try:
-            doctor_num = int(get_input("Enter the doctor number: "))
-            break
+            choice = int(get_input("Enter the doctor number: "))
+            if 1 <= choice <= len(doctors):
+                break
+            else:
+                print(Fore.RED, "Invalid choice.")
         except ValueError or UnboundLocalError:
-            print()
-        except InfoCommand:
-            schedule_page()
-            return
-        except RedirectCommand:
-            return
+            print(Fore.RED, "Invalid choice.")
 
     # Get desired doctor information
-    doctor = doctors[doctor_num - 1]
+    doctor = doctors[choice - 1]
 
     # Set the appointment date (currently, your appointment dates are 1 day after your scheduling)
     appointment_date = date.today() + timedelta(days=1)
@@ -475,15 +487,9 @@ def receipts_page():
 
     # Wait for user command
     while True:
-        print()
-        try:
-            get_input("Enter a program command (-help for commands): ")
-        except InfoCommand:
-            continue
-        except RedirectCommand:
-            return
-        else:
-            print(Fore.RED, "Invalid command.")
+        print(Fore.YELLOW, commands)
+        get_input("Enter one of these commands: ")
+        
 
 
 def reports_page():
@@ -537,15 +543,8 @@ def reports_page():
 
     # Wait for user command
     while True:
-        print()
-        try:
-            get_input("Enter a program command (-help for commands): ")
-        except InfoCommand:
-            continue
-        except RedirectCommand:
-            return
-        else:
-            print(Fore.RED, "Invalid command.")
+        print(Fore.YELLOW, commands)
+        get_input("Enter one of these commands: ")
 
 
 def doctors_page():
@@ -556,21 +555,23 @@ def doctors_page():
     # Page UI
     print()
     page = f"Welcome back Dr. {session.name}!\n"
-    page += "1- View your receipts\n"
-    page += "2- View unfinished reports\n"
-    page += "3- View finished reports\n"
-    page += "4- Logout"
+    page += "------------------" + "-" * len(session.name) + "\n"
+    page += "!left 1- View your receipts\n"
+    page += "!left 2- View unfinished reports\n"
+    page += "!left 3- View finished reports\n"
+    page += "!left 4- Logout\n"
+    page += "!left 5- Close the program"
     border(page)
 
     while True:
         try:
             choice = int(get_input("Enter your choice: "))
-            if 1 <= choice <= 4:
+            if 1 <= choice <= 5:
                 break
-        except ValueError:
-            ...
-        except RedirectCommand:
-            return
+            else:
+                print(Fore.RED, "Invalid choice.")
+        except ValueError or UnboundLocalError:
+            print(Fore.RED, "Invalid choice.")
 
     if choice == 1:
         receipts_page()
@@ -580,8 +581,10 @@ def doctors_page():
         finished_reports_page()
     elif choice == 4:
         logout()
+    elif choice == 5:
+        exit_program()
     else:
-        print(Fore.RED, "Invalid command.")
+        print(Fore.RED, "Invalid choice.")
         doctors_page()
 
     return
@@ -613,15 +616,8 @@ def unfinished_reports_page():
 
         # Wait for user command
         while True:
-            print()
-            try:
-                get_input("Enter a program command (-help for commands): ")
-            except InfoCommand:
-                continue
-            except RedirectCommand:
-                return
-            else:
-                print(Fore.RED, "Invalid command.")
+            print(Fore.YELLOW, commands)
+            get_input("Enter one of these commands: ")
 
     # Print doctor's unfinished reports
     for i in range(len(unfinished)):
@@ -638,20 +634,17 @@ def unfinished_reports_page():
     while True:
         print()
         try:
-            chosen_number = int(get_input("Report number to finish: "))
-            notes = get_input("Notes: ")
-            if 1 <= chosen_number <= len(unfinished):
+            choice = int(get_input("Report number to finish: "))
+            if 1 <= choice <= len(unfinished):
+                notes = get_input("Notes: ")
                 break
+            else:
+                print(Fore.RED, "Invalid report number.")
         except ValueError or UnboundLocalError:
-            print()
-        except InfoCommand:
-            unfinished_reports_page()
-            return
-        except RedirectCommand:
-            return
+            print(Fore.RED, "Invalid choice.")
 
     # Get chosen report
-    chosen_report = unfinished[chosen_number - 1]
+    chosen_report = unfinished[choice - 1]
 
     # Add back doctor_name which was removed for easier printing process
     chosen_report["doctor_name"] = session.name
@@ -719,15 +712,8 @@ def finished_reports_page():
 
     # Wait for user command
     while True:
-        print()
         print(Fore.YELLOW, commands)
-
-        try:
-            get_input("Enter one of these commands: ")
-        except RedirectCommand:
-            return
-        else:
-            print(Fore.RED, "Invalid command.")
+        get_input("Enter one of these commands: ")
 
 
 """
@@ -859,9 +845,11 @@ def is_command(s: str):
     try:
         commands.run(s)
     except InfoCommand:
-        raise InfoCommand
+        return "-info"
     except RedirectCommand:
-        raise RedirectCommand
+        return "-redirect"
+    except InvalidCommand:
+        return "-invalid"
     
     return False
 
@@ -874,7 +862,11 @@ def get_name(s: str):
         if not inpt:
            continue
         
-        if is_command(inpt):
+        result = is_command(inpt)
+
+        if result in ["-info", "-invalid"]:
+            continue
+        elif result == "-redirect":
             return
 
         # Validate name
@@ -896,7 +888,11 @@ def get_email(s: str):
         if not inpt:
            continue
 
-        if is_command(inpt):
+        result = is_command(inpt)
+
+        if result in ["-info", "-invalid"]:
+            continue
+        elif result == "-redirect":
             return
 
         # Validate email
@@ -914,13 +910,13 @@ def get_input(s: str):
     while True:
         inpt = input(Fore.BLUE + " " + s).strip()
         
-        try:
-            is_command(inpt)
-        except InfoCommand:
-            raise InfoCommand
-        except RedirectCommand:
-            raise RedirectCommand
-        
+        result = is_command(inpt)
+
+        if result in ["-info", "-invalid"]:
+            continue
+        elif result == "-redirect":
+            return
+            
         if input:
             break
 
@@ -950,9 +946,13 @@ def doctor_specific():
 
 def logout():
     """Clears the session and returns to the login page"""
-    session.clear()
-    print(Fore.GREEN, Style.BRIGHT + "Successfully logged out.")
-    login_page()
+    if session.email:
+        session.clear()
+        print(Fore.GREEN, Style.BRIGHT + "Successfully logged out.")
+        login_page()
+    else:
+        print(Fore.RED, "You are not logged in.")
+        login_page()
 
 
 def exit_program():
