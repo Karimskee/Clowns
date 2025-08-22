@@ -1,5 +1,5 @@
 """
-Ducktors:
+Ducktors v1:
 ---------
 A hospital terminal program for CS50 Python Final Project
 
