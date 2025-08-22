@@ -114,7 +114,7 @@ Ducktors/
 ---
 ### A word of appreciation 🌹
 
-Words can not express the gratitude I feel toward CS50, from the course content, learning path and structure, to the problem sets and the final project, it was simply incomparable with any learning experience I've had!  
+Words can not express the gratitude we both feel toward CS50, from the course content, learning path and structure, to the problem sets and the final project, it was simply incomparable with any learning experience we have ever had!  
 Many thanks to the [@CS50](https://github.com/cs50) team and special thanks to Dr. [@David J. Malin](https://github.com/dmalan) for everything you've done to deliver the course in such an amazing way!
 
 
