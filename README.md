@@ -126,3 +126,6 @@ Many thanks to the [@CS50](https://github.com/cs50) team and special thanks to D
 
 ---
 ### Demo video 🎥 WIP
+⬥ **Link:** https://youtu.be/2yLKV0FVaks  
+⬥ **Preview:**
+[![Ducktors](https://img.youtube.com/vi/2yLKV0FVaks/maxresdefault.jpg)](https://youtu.be/2yLKV0FVaks)
